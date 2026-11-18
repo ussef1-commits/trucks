@@ -320,6 +320,8 @@ fieldset .fs input[type=date]{width:100%}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
           <input id="q" type="search" placeholder="ابحث بالشاسيه أو المشتري أو الشركة البائعة أو الوصف" autocomplete="off">
         </div>
+        <button class="btn" id="impBtn" type="button">استيراد</button>
+        <input type="file" id="impFile" accept=".json,application/json" hidden>
         <button class="btn primary" id="addBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
           إضافة عربية
@@ -1131,6 +1133,28 @@ async function exportXlsx(){
     toast('اتحفظ ملف الإكسل');
   }catch(ex){ console.error(ex); toast('ما قدرناش نطلّع الملف.'); }
 }
+
+/* ---------- one-time import from a JSON file ---------- */
+$('impBtn').addEventListener('click',()=>askMath({title:'استيراد بيانات',note:'بعد الحل اختار ملف البيانات (JSON).',btn:'اختيار الملف'},()=>$('impFile').click()));
+$('impFile').addEventListener('change',async function(){
+  const f=this.files&&this.files[0]; this.value=''; if(!f) return;
+  let arr;
+  try{ arr=JSON.parse(await f.text()); if(!Array.isArray(arr)) throw 0; }catch(e){ toast('الملف مش مظبوط.'); return; }
+  const have={}; rows.forEach(r=>{ have[norm(r.chassis)]=1; });
+  const fresh=arr.filter(o=>o&&(o.chassis||o.description)&&!(o.chassis&&have[norm(o.chassis)]));
+  if(!fresh.length){ toast('كل البيانات دي موجودة بالفعل.'); return; }
+  const dup=arr.length-fresh.length;
+  askMath({title:'تأكيد الاستيراد',note:'هيتضاف '+fresh.length+' مركبة'+(dup?' (و'+dup+' موجودة قبل كده هتتخطى)':'')+'.',btn:'استيراد'},async()=>{
+    let n=0, base=Date.now(); toast('بنستورد البيانات… استنى');
+    for(const o of fresh){
+      try{
+        const t=base+n, d=Object.assign({},o,{vehicleType:o.vehicleType==='reefer'?'reefer':'car',createdBy:me,createdAt:t,updatedAt:t,updatedBy:me,photoCount:0});
+        await addDoc(collection(db,'trucks'),d); n++;
+      }catch(ex){ writeFailed(ex); break; }
+    }
+    if(n){ writeLog({id:'',chassis:''},'استيراد '+n+' مركبة من ملف'); toast('اتستورد '+n+' مركبة'); }
+  });
+});
 
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape') return;
