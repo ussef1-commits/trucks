@@ -255,6 +255,11 @@ th.srt.desc::after{content:" ▼";font-size:10px}
   .stat:nth-child(5){grid-column:1/-1;border-inline-start:0;border-top:1px solid var(--line)}
   .calc{grid-template-columns:1fr}
 }
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:rgba(120,120,120,.14)}
+.tag.rf{background:rgba(43,95,163,.16);color:#2b5fa3}
+.flts .sep{display:inline-block;width:1px;height:22px;background:rgba(120,120,120,.35);margin:0 6px;align-self:center}
+.stat small{display:block;margin:2px 0 0;margin-inline-start:0}
+fieldset .fs input[type=date]{width:100%}
 </style>
 </head>
 <body>
@@ -313,12 +318,7 @@ th.srt.desc::after{content:" ▼";font-size:10px}
       <div class="bar">
         <div class="search grow">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-          <input id="q" type="search" placeholder="ابحث بالشاسيه أو المشتري أو الوصف" autocomplete="off">
-        </div>
-        <div class="rate">
-          <label for="rateIn">سعر اليورو بالجنيه</label>
-          <input id="rateIn" class="mono" dir="ltr" inputmode="decimal" placeholder="0">
-          <button class="mini" id="rateSave" type="button" hidden>حفظ</button>
+          <input id="q" type="search" placeholder="ابحث بالشاسيه أو المشتري أو الشركة البائعة أو الوصف" autocomplete="off">
         </div>
         <button class="btn primary" id="addBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
@@ -328,25 +328,33 @@ th.srt.desc::after{content:" ▼";font-size:10px}
       <div class="flts" id="flts"></div>
       <div class="sheet card">
         <div class="scroll">
-          <table id="tbl" style="min-width:2100px">
+          <table id="tbl" style="min-width:3300px">
             <thead>
               <tr>
                 <th>م</th>
                 <th class="c-chassis srt" data-sort="chassis">رقم الشاسيه</th>
+                <th class="srt" data-sort="vtype">المركبة</th>
                 <th class="srt" data-sort="make">النوع</th>
                 <th>الوصف</th>
                 <th>اللون</th>
                 <th class="srt" data-sort="buyer">المشتري</th>
+                <th class="srt" data-sort="seller">الشركة البائعة</th>
+                <th>هاتف الشركة</th>
                 <th class="srt" data-sort="buy">سعر الشراء</th>
                 <th class="srt" data-sort="extra">مصاريف إضافية</th>
                 <th class="srt" data-sort="ship">سعر الشحن</th>
                 <th class="srt" data-sort="cost">إجمالي التكلفة</th>
                 <th class="srt" data-sort="sale">سعر البيع</th>
                 <th class="srt" data-sort="profit">الربح</th>
+                <th class="srt" data-sort="purchaseDate">تاريخ الشراء</th>
+                <th class="srt" data-sort="saleDate">تاريخ البيع</th>
+                <th class="srt" data-sort="transportDate">تاريخ النقل</th>
+                <th class="srt" data-sort="shipDate">تاريخ الشحن</th>
+                <th class="srt" data-sort="arrivalDate">تاريخ الوصول</th>
                 <th>النقل</th><th>الأسيد</th><th>رقم الشحن</th><th>تم الشحن</th>
                 <th>ملاحظات</th>
                 <th class="srt" data-sort="by">سجّلها</th>
-                <th class="srt" data-sort="createdAt">التاريخ</th>
+                <th class="srt" data-sort="createdAt">تاريخ التسجيل</th>
                 <th>إجراءات</th>
               </tr>
             </thead>
@@ -367,10 +375,14 @@ th.srt.desc::after{content:" ▼";font-size:10px}
   <div class="ov" id="modal" hidden>
     <form class="md wide" id="tform" role="dialog" aria-modal="true" aria-labelledby="mTitle" autocomplete="off" novalidate>
       <div class="mh">
-        <h2 id="mTitle">عربية جديدة</h2>
+        <h2 id="mTitle">تسجيل جديد</h2>
         <button class="x" id="mClose" type="button" aria-label="إغلاق">×</button>
       </div>
       <div class="grid" id="fgrid">
+        <div class="f full">
+          <span class="lbl">نوع المركبة</span>
+          <div class="seg" id="fVType" role="radiogroup" aria-label="نوع المركبة"></div>
+        </div>
         <div class="f full">
           <label for="fChassis">رقم الشاسيه</label>
           <input id="fChassis" class="mono" dir="ltr" maxlength="40" placeholder="WMA06XZZ…" autocapitalize="characters" spellcheck="false">
@@ -378,7 +390,7 @@ th.srt.desc::after{content:" ▼";font-size:10px}
         <div class="f full">
           <span class="lbl">النوع</span>
           <div class="seg" id="fMake" role="radiogroup" aria-label="النوع"></div>
-          <input id="fMakeIn" placeholder="أو اكتب النوع">
+          <input id="fMakeIn" placeholder="أخرى: اكتب النوع">
         </div>
         <div class="f full">
           <label for="fDesc">الوصف</label>
@@ -393,15 +405,28 @@ th.srt.desc::after{content:" ▼";font-size:10px}
           <label for="fBuyer">المشتري</label>
           <input id="fBuyer" placeholder="اسم المشتري">
         </div>
+        <div class="f">
+          <label for="fSeller">الشركة البائعة</label>
+          <input id="fSeller" placeholder="اسم الشركة البائعة">
+        </div>
+        <div class="f">
+          <label for="fSellerPhone">هاتف الشركة البائعة</label>
+          <input id="fSellerPhone" class="mono" dir="ltr" inputmode="tel" placeholder="+49 …">
+        </div>
         <div class="f full">
           <fieldset>
-            <legend>التكلفة والبيع</legend>
+            <legend>التكلفة والبيع (يورو €)</legend>
             <div class="fs" id="moneyBox"></div>
             <div class="calc">
               <div><span>إجمالي التكلفة (شراء + مصاريف + شحن)</span><b id="calcCost">—</b></div>
               <div><span>الربح</span><b id="calcProfit">—</b></div>
             </div>
-            <p class="ok-note" id="calcNote"></p>
+          </fieldset>
+        </div>
+        <div class="f full">
+          <fieldset>
+            <legend>التواريخ</legend>
+            <div class="fs" id="dateBox"></div>
           </fieldset>
         </div>
         <div class="f">
@@ -425,7 +450,7 @@ th.srt.desc::after{content:" ▼";font-size:10px}
           <textarea id="fNotes" rows="3" placeholder="أي تفاصيل إضافية"></textarea>
         </div>
         <div class="f full" id="photoBox">
-          <span class="lbl">صور العربية</span>
+          <span class="lbl">صور المركبة</span>
           <div class="ph" id="phList"></div>
           <p class="ok-note" id="phNote"></p>
           <button type="button" class="btn" id="phAdd">إضافة صورة</button>
@@ -481,8 +506,107 @@ th.srt.desc::after{content:" ▼";font-size:10px}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, setDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, EMAIL_DOMAIN, USERS } from "./config.js";
+
+/* ===== shared by the page and the daily report: money maths + Excel layout (EUR only) ===== */
+const has = v => v != null && v !== '';
+const nf = n => Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const dstr = ms => ms ? new Date(ms).toLocaleDateString('en-CA', { timeZone: 'Africa/Cairo' }) : '';
+const VLABEL = { car: 'عربية', reefer: 'براد' };
+const vtypeOf = r => r && r.vehicleType === 'reefer' ? 'reefer' : 'car';
+function calcRow(r) {
+  let cost = 0, any = false;
+  ['buyPrice', 'extraPrice', 'shipPrice'].forEach(p => { if (has(r[p])) { any = true; cost += Number(r[p]); } });
+  const sale = has(r.salePrice) ? Number(r.salePrice) : null;
+  return { any, cost: any ? cost : null, profit: sale != null ? sale - cost : null };
+}
+function isoToDate(s) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s || '')) return null;
+  const p = s.split('-').map(Number); return new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+}
+async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
+  const EUR = '#,##0.##" €"', DATEF = 'yyyy-mm-dd', FONT = 'Arial';
+  const thin = { style: 'thin', color: { argb: 'FFD8DCD8' } }, border = { top: thin, left: thin, bottom: thin, right: thin };
+  const fill = c => ({ type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + c } });
+  const al = h => ({ horizontal: h, vertical: 'middle', wrapText: true, readingOrder: 'rtl' });
+  const num = p => r => has(r[p]) ? Number(r[p]) : null;
+  const dt = p => r => isoToDate(r[p]);
+  const cols = [
+    { h: 'م', w: 6, v: (r, i) => i + 1, a: 'center' },
+    { h: 'رقم الشاسيه', w: 24, v: r => r.chassis || '', a: 'center', mono: true },
+    { h: 'المركبة', w: 11, v: r => VLABEL[vtypeOf(r)], a: 'center' },
+    { h: 'النوع', w: 20, v: r => r.make || '', a: 'center' },
+    { h: 'الوصف', w: 34, v: r => r.description || '', a: 'right' },
+    { h: 'اللون', w: 12, v: r => r.color || '', a: 'center' },
+    { h: 'المشتري', w: 22, v: r => r.buyer || '', a: 'right' },
+    { h: 'الشركة البائعة', w: 24, v: r => r.sellerName || '', a: 'right' },
+    { h: 'هاتف الشركة', w: 18, v: r => r.sellerPhone || '', a: 'center', text: true },
+    { h: 'سعر الشراء (€)', w: 16, v: num('buyPrice'), a: 'center', fmt: EUR },
+    { h: 'مصاريف إضافية (€)', w: 18, v: num('extraPrice'), a: 'center', fmt: EUR },
+    { h: 'سعر الشحن (€)', w: 16, v: num('shipPrice'), a: 'center', fmt: EUR },
+    { h: 'إجمالي التكلفة (€)', w: 19, v: (r, i, c) => c.any ? c.cost : null, a: 'center', fmt: EUR, key: 'cost' },
+    { h: 'سعر البيع (€)', w: 16, v: num('salePrice'), a: 'center', fmt: EUR },
+    { h: 'الربح (€)', w: 16, v: (r, i, c) => c.profit, a: 'center', fmt: EUR, key: 'profit' },
+    { h: 'تاريخ الشراء', w: 14, v: dt('purchaseDate'), a: 'center', fmt: DATEF },
+    { h: 'تاريخ البيع', w: 14, v: dt('saleDate'), a: 'center', fmt: DATEF },
+    { h: 'تاريخ النقل', w: 14, v: dt('transportDate'), a: 'center', fmt: DATEF },
+    { h: 'تاريخ الشحن', w: 14, v: dt('shipDate'), a: 'center', fmt: DATEF },
+    { h: 'تاريخ الوصول', w: 14, v: dt('arrivalDate'), a: 'center', fmt: DATEF },
+    { h: 'النقل', w: 11, v: r => r.transportDone ? 'تم' : 'لا', a: 'center', status: true },
+    { h: 'الأسيد', w: 11, v: r => r.acidDone ? 'تم' : 'لا', a: 'center', status: true },
+    { h: 'رقم الشحن', w: 18, v: r => r.shipNo || '', a: 'center' },
+    { h: 'تم الشحن', w: 13, v: r => r.shipDone ? 'تم' : 'لا', a: 'center', status: true },
+    { h: 'ملاحظات', w: 34, v: r => r.notes || '', a: 'right' },
+    { h: 'سجّلها', w: 14, v: r => nameOf(r.createdBy), a: 'center' },
+    { h: 'تاريخ التسجيل', w: 14, v: r => dstr(r.createdAt), a: 'center' }
+  ];
+  const NC = cols.length, HEAD = 4, first = HEAD + 1;
+  const wb = new ExcelJS.Workbook(); wb.creator = 'سجل العربيات'; wb.created = new Date();
+  const ws = wb.addWorksheet('المركبات', { views: [{ rightToLeft: true, state: 'frozen', xSplit: 2, ySplit: HEAD, showGridLines: false }], properties: { tabColor: { argb: 'FF1F4F60' } }, pageSetup: { orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0 } });
+  cols.forEach((c, i) => { ws.getColumn(i + 1).width = c.w; });
+
+  ws.mergeCells(1, 1, 1, NC); const t = ws.getCell(1, 1); t.value = 'سجل العربيات';
+  t.font = { name: FONT, size: 20, bold: true, color: { argb: 'FFFFFFFF' } }; t.fill = fill('1F4F60'); t.alignment = al('center'); ws.getRow(1).height = 38;
+  const nCar = list.filter(r => vtypeOf(r) === 'car').length, nRf = list.length - nCar;
+  const nT = list.filter(r => r.transportDone).length, nA = list.filter(r => r.acidDone).length, nS = list.filter(r => r.shipDone).length;
+  ws.mergeCells(2, 1, 2, NC); const s = ws.getCell(2, 1);
+  s.value = 'تاريخ التصدير: ' + dstr(Date.now()) + '   •   عدد المركبات: ' + list.length + ' (عربيات ' + nCar + ' / برادات ' + nRf + ')   •   تم النقل: ' + nT + '   •   تم الأسيد: ' + nA + '   •   تم الشحن: ' + nS;
+  s.font = { name: FONT, size: 11, color: { argb: 'FF3E4A52' } }; s.fill = fill('E6EEF0'); s.alignment = al('center'); ws.getRow(2).height = 26; ws.getRow(3).height = 8;
+
+  const hr = ws.getRow(HEAD); hr.height = 30;
+  cols.forEach((c, i) => { const cell = hr.getCell(i + 1); cell.value = c.h; cell.font = { name: FONT, size: 12, bold: true, color: { argb: 'FFFFFFFF' } }; cell.fill = fill('2B6A80'); cell.border = border; cell.alignment = al('center'); });
+
+  let sumCost = 0, sumProfit = 0;
+  list.forEach((r, i) => {
+    const row = ws.getRow(first + i), zebra = (i % 2 === 1) ? 'F5F6F4' : 'FFFFFF', c = calcRow(r);
+    if (c.any) sumCost += c.cost; if (c.profit != null) sumProfit += c.profit;
+    cols.forEach((col, k) => {
+      const cell = row.getCell(k + 1); cell.value = col.v(r, i, c);
+      cell.font = { name: col.mono ? 'Courier New' : FONT, size: 11, bold: !!col.mono, color: { argb: 'FF1B2328' } };
+      cell.fill = fill(zebra); cell.border = border; cell.alignment = al(col.a);
+      if (col.fmt) cell.numFmt = col.fmt; if (col.text) cell.numFmt = '@';
+      if (col.status) { const ok = cell.value === 'تم'; cell.fill = fill(ok ? 'DDF0E5' : 'F1F2F0'); cell.font = { name: FONT, size: 11, bold: ok, color: { argb: ok ? 'FF1D7449' : 'FF8A949B' } }; }
+      if (col.key === 'profit' && c.profit != null) cell.font = { name: FONT, size: 11, bold: true, color: { argb: c.profit >= 0 ? 'FF1D7449' : 'FFA63D2F' } };
+    });
+    row.height = Math.max(22, Math.min(60, Math.ceil(Math.max((r.description || '').length, (r.notes || '').length) / 32) * 16 + 8));
+  });
+  const last = first + list.length - 1, tr = last + 1;
+  if (list.length) {
+    const ci = cols.findIndex(c => c.key === 'cost') + 1, pi = cols.findIndex(c => c.key === 'profit') + 1;
+    const col = n => ws.getColumn(n).letter;
+    const lab = ws.getCell(tr, ci - 1); lab.value = 'الإجمالي (€)';
+    const tc = ws.getCell(tr, ci); tc.value = { formula: 'SUM(' + col(ci) + first + ':' + col(ci) + last + ')', result: sumCost };
+    const tp = ws.getCell(tr, pi); tp.value = { formula: 'SUM(' + col(pi) + first + ':' + col(pi) + last + ')', result: sumProfit };
+    tc.numFmt = EUR; tp.numFmt = EUR;
+    [lab, tc, tp].forEach(x => { x.font = { name: FONT, size: 12, bold: true, color: { argb: 'FF3D2F05' } }; x.fill = fill('FBEBC0'); x.border = border; x.alignment = al('center'); });
+    ws.getRow(tr).height = 26;
+    ws.autoFilter = { from: { row: HEAD, column: 1 }, to: { row: last, column: NC } };
+  }
+  const buf = await wb.xlsx.writeBuffer();
+  return { buf, sumCost, sumProfit, nT, nA, nS, nCar, nRf };
+}
+
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -491,17 +615,16 @@ const latin = s => String(s||'').replace(/[٠-٩]/g,d=>String(d.charCodeAt(0)-16
 const DASH = '<span class="dim">—</span>';
 const nameOf = k => USERS[k] ? USERS[k].name : '—';
 const initOf = k => String((USERS[k]&&USERS[k].name)||k||'?').charAt(0).toUpperCase();
-const fmtDate = ms => { if(!ms) return ''; const d=new Date(ms); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
-const fmtNum = n => (n==null||n==='') ? '' : Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
-const SYM = {EGP:'ج.م', EUR:'€'};
-const CURS = [['EGP','جنيه مصري'],['EUR','يورو']];
-const MAKES = ['مان','مرسيدس','فولفو'];
+const fmtNum = nf;
+const PRESETS = { car:['مان','مرسيدس','فولفو'], reefer:['كرونا (Krone)','شميتز (Schmitz)','شيرو (Chereau)'] };
 const COLORS = [['أبيض','#f4f4f1'],['أحمر','#c43a2d'],['أزرق','#2b5fa3'],['أسود','#23282d']];
 const MONEY = [['buy','سعر الشراء'],['extra','مصاريف إضافية'],['ship','سعر الشحن'],['sale','سعر البيع']];
+const DATES = [['purchase','تاريخ الشراء'],['sale','تاريخ البيع'],['transport','تاريخ النقل'],['ship','تاريخ الشحن'],['arrival','تاريخ الوصول']];
 const MAX_PHOTOS = 3;
 
-const money = (n,c) => (n==null||n==='') ? DASH : '<bdi>'+esc(fmtNum(n))+'</bdi> '+SYM[c==='EUR'?'EUR':'EGP'];
-const pfCell = p => p==null ? DASH : '<span class="pf '+(p>=0?'pos':'neg')+'"><bdi>'+(p>0?'+':'')+esc(fmtNum(p))+'</bdi> ج.م</span>';
+const money = n => has(n) ? '<bdi>'+esc(fmtNum(n))+'</bdi> €' : DASH;
+const pfCell = p => p==null ? DASH : '<span class="pf '+(p>=0?'pos':'neg')+'"><bdi>'+(p>0?'+':'')+esc(fmtNum(p))+'</bdi> €</span>';
+const dcell = s => s ? '<span class="mono">'+esc(s)+'</span>' : DASH;
 
 /* ---------- firebase ---------- */
 const configured = firebaseConfig && firebaseConfig.apiKey && !/PASTE/i.test(firebaseConfig.apiKey);
@@ -511,29 +634,15 @@ if(configured){
 }
 
 /* ---------- state ---------- */
-let me=null, rows=[], rate=0, logs=[], unsubs=[];
-let flt='all', sortKey='createdAt', sortDir='desc';
+let me=null, rows=[], logs=[], unsubs=[];
+let flt='all', vf='all', sortKey='createdAt', sortDir='desc';
 let loaded=false, dbError='', slow=false;
 let editingId=null, readOnlyForm=false, pending={}, mathAns=0, mathAction=null, toastTimer=null;
-const form = {transport:false, acid:false, ship:false, cur:{buy:'EGP',extra:'EGP',ship:'EGP',sale:'EGP'}};
+const form = {vtype:'car', transport:false, acid:false, ship:false};
 let viewRows = [];
 
 const toast = t => { const el=$('toast'); el.textContent=t; el.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{el.hidden=true},3400); };
-const isAdmin = () => !!me && USERS[me].role==='admin';
-const canEditRow = r => !!me && (isAdmin() || r.createdBy===me);
-
-/* ---------- money maths (everything is reported in EGP) ---------- */
-const egp = (n,c) => c==='EUR' ? (rate>0 ? n*rate : null) : n;
-const has = v => v!=null && v!=='';
-function calc(r){
-  let cost=0, ok=true, any=false;
-  [['buyPrice','buyCur'],['extraPrice','extraCur'],['shipPrice','shipCur']].forEach(([p,c])=>{
-    if(!has(r[p])) return; any=true;
-    const e=egp(Number(r[p]),r[c]); if(e==null) ok=false; else cost+=e;
-  });
-  const sale = has(r.salePrice) ? egp(Number(r.salePrice),r.saleCur) : null;
-  return { any, cost: ok?cost:null, profit: (ok && sale!=null) ? sale-cost : null };
-}
+const canEditRow = r => !!me;
 
 /* ---------- login ---------- */
 $('loginUser').innerHTML = Object.keys(USERS).map(k=>'<option value="'+esc(k)+'">'+esc(USERS[k].name)+'</option>').join('');
@@ -569,12 +678,11 @@ if(auth){
 function enter(k){
   me=k;
   $('login').hidden=true; $('main').hidden=false; $('fab').hidden=false; $('logBtn').hidden=false; $('who').hidden=false;
-  $('whoInit').textContent=initOf(k); $('whoName').textContent=USERS[k].name; $('whoRole').textContent=isAdmin()?'أدمن':'مستخدم';
-  $('rateIn').disabled=!isAdmin(); $('rateSave').hidden=!isAdmin();
+  $('whoInit').textContent=initOf(k); $('whoName').textContent=USERS[k].name; $('whoRole').textContent='صلاحيات كاملة';
   startData(); renderAll();
 }
 function leave(){
-  me=null; unsubs.forEach(u=>u()); unsubs=[]; rows=[]; logs=[]; loaded=false; dbError=''; rate=0;
+  me=null; unsubs.forEach(u=>u()); unsubs=[]; rows=[]; logs=[]; loaded=false; dbError='';
   closeModal(); closeMath(); $('logModal').hidden=true;
   $('main').hidden=true; $('fab').hidden=true; $('logBtn').hidden=true; $('who').hidden=true; $('login').hidden=false;
 }
@@ -583,21 +691,15 @@ function leave(){
 function startData(){
   loaded=false; slow=false; dbError='';
   const timer=setTimeout(()=>{ if(!loaded){ slow=true; renderBanner(); } },10000);
-  const fail = err => { clearTimeout(timer); dbError = (err&&err.code==='permission-denied') ? 'مفيش صلاحية لقراءة البيانات. اتأكد إن ملف القواعد (firestore.rules) اتنشر وإن الإيميلات مطابقة.' : 'مش قادر أحمّل البيانات دلوقتي. اتأكد من النت.'; renderAll(); };
+  const fail = err => { clearTimeout(timer); dbError = (err&&err.code==='permission-denied') ? 'مفيش صلاحية لقراءة البيانات. اتأكد إن ملف القواعد اتنشر وإن الإيميلات مطابقة.' : 'مش قادر أحمّل البيانات دلوقتي. اتأكد من النت.'; renderAll(); };
   unsubs.push(onSnapshot(collection(db,'trucks'), snap=>{
     rows=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));
     loaded=true; slow=false; dbError=''; clearTimeout(timer); renderAll();
   }, fail));
-  unsubs.push(onSnapshot(doc(db,'settings','rate'), s=>{
-    rate = s.exists() ? Number(s.data().eurToEgp)||0 : 0;
-    if(document.activeElement!==$('rateIn')) $('rateIn').value = rate ? String(rate) : '';
-    renderAll();
-  }, ()=>{}));
   unsubs.push(onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(100)), s=>{
     logs=s.docs.map(d=>d.data()); renderLog();
   }, ()=>{}));
 }
-
 async function writeLog(truck, text){
   try{ await addDoc(collection(db,'log'),{at:Date.now(), by:me, truckId:truck.id||'', chassis:truck.chassis||'', text}); }catch(e){ console.warn('log failed',e); }
 }
@@ -616,22 +718,34 @@ function renderBanner(){
 }
 function renderStats(){
   const t=rows.length, a=rows.filter(r=>r.transportDone).length, c=rows.filter(r=>r.acidDone).length, s=rows.filter(r=>r.shipDone).length;
-  let pr=0, n=0; rows.forEach(r=>{ const p=calc(r).profit; if(p!=null){ pr+=p; n++; } });
-  const cell=(l,v,of)=>'<div class="stat"><b>'+v+'</b><span>'+l+'</span>'+(of!=null?'<small>من '+of+'</small>':'')+'</div>';
-  $('stats').innerHTML = cell('إجمالي العربيات',t)+cell('تم النقل',a,t)+cell('تم الأسيد',c,t)+cell('تم الشحن',s,t)
-    + '<div class="stat profit"><b class="'+(n?(pr>=0?'pos':'neg'):'')+'">'+(n?'<bdi>'+(pr>0?'+':'')+fmtNum(pr)+'</bdi>':'—')+'</b><span>إجمالي الربح (ج.م)</span></div>';
+  const nCar=rows.filter(r=>vtypeOf(r)==='car').length, nRf=t-nCar;
+  let pr=0, n=0; rows.forEach(r=>{ const p=calcRow(r).profit; if(p!=null){ pr+=p; n++; } });
+  const cell=(l,v,small)=>'<div class="stat"><b>'+v+'</b><span>'+l+'</span>'+(small?'<small>'+small+'</small>':'')+'</div>';
+  $('stats').innerHTML = cell('إجمالي المركبات',t,'عربيات '+nCar+' • برادات '+nRf)+cell('تم النقل',a,'من '+t)+cell('تم الأسيد',c,'من '+t)+cell('تم الشحن',s,'من '+t)
+    + '<div class="stat profit"><b class="'+(n?(pr>=0?'pos':'neg'):'')+'">'+(n?'<bdi>'+(pr>0?'+':'')+fmtNum(pr)+'</bdi> €':'—')+'</b><span>إجمالي الربح</span></div>';
 }
-const FLTS = [['all','الكل',()=>true],['noT','لسه ما اتنقلتش',r=>!r.transportDone],['noA','الأسيد لسه',r=>!r.acidDone],['noS','لسه ما اتشحنتش',r=>!r.shipDone]];
+const VF = [['all','كل المركبات'],['car','عربيات'],['reefer','برادات']];
+const FLTS = [['all','كل الحالات',()=>true],['noT','لسه ما اتنقلتش',r=>!r.transportDone],['noA','الأسيد لسه',r=>!r.acidDone],['noS','لسه ما اتشحنتش',r=>!r.shipDone]];
+const vfOk = r => vf==='all' || vtypeOf(r)===vf;
 function renderFilters(){
-  $('flts').innerHTML = FLTS.map(f=>'<button type="button" class="flt" data-f="'+f[0]+'" aria-pressed="'+(flt===f[0])+'">'+f[1]+'<small>'+rows.filter(f[2]).length+'</small></button>').join('');
+  const base=rows.filter(vfOk);
+  $('flts').innerHTML =
+    VF.map(([k,l])=>'<button type="button" class="flt" data-vf="'+k+'" aria-pressed="'+(vf===k)+'">'+l+'<small>'+(k==='all'?rows.length:rows.filter(r=>vtypeOf(r)===k).length)+'</small></button>').join('')
+    + '<span class="sep" aria-hidden="true"></span>'
+    + FLTS.map(f=>'<button type="button" class="flt" data-f="'+f[0]+'" aria-pressed="'+(flt===f[0])+'">'+f[1]+'<small>'+base.filter(f[2]).length+'</small></button>').join('');
 }
-$('flts').addEventListener('click',e=>{ const b=e.target.closest('[data-f]'); if(!b) return; flt=b.getAttribute('data-f'); renderFilters(); renderTable(); });
+$('flts').addEventListener('click',e=>{
+  const b=e.target.closest('button.flt'); if(!b) return;
+  if(b.hasAttribute('data-vf')) vf=b.getAttribute('data-vf'); else flt=b.getAttribute('data-f');
+  renderFilters(); renderTable();
+});
 
-const mnum = (p,c)=> r => has(r[p]) ? egp(Number(r[p]),r[c]) : null;
+const mnum = p => r => has(r[p]) ? Number(r[p]) : null;
 const SORTERS = {
-  chassis:r=>norm(r.chassis)||null, make:r=>norm(r.make)||null, buyer:r=>norm(r.buyer)||null, by:r=>nameOf(r.createdBy),
-  buy:mnum('buyPrice','buyCur'), extra:mnum('extraPrice','extraCur'), ship:mnum('shipPrice','shipCur'), sale:mnum('salePrice','saleCur'),
-  cost:r=>{const c=calc(r); return c.any?c.cost:null}, profit:r=>calc(r).profit, createdAt:r=>r.createdAt||0
+  chassis:r=>norm(r.chassis)||null, vtype:r=>vtypeOf(r), make:r=>norm(r.make)||null, buyer:r=>norm(r.buyer)||null, seller:r=>norm(r.sellerName)||null, by:r=>nameOf(r.createdBy),
+  buy:mnum('buyPrice'), extra:mnum('extraPrice'), ship:mnum('shipPrice'), sale:mnum('salePrice'),
+  cost:r=>calcRow(r).cost, profit:r=>calcRow(r).profit, createdAt:r=>r.createdAt||0,
+  purchaseDate:r=>r.purchaseDate||null, saleDate:r=>r.saleDate||null, transportDate:r=>r.transportDate||null, shipDate:r=>r.shipDate||null, arrivalDate:r=>r.arrivalDate||null
 };
 function colorCell(name){
   if(!name) return DASH;
@@ -640,12 +754,10 @@ function colorCell(name){
 }
 function chip(r,f){
   const on=!!r[f], cls='chip '+(on?'ok':'no');
-  if(canEditRow(r)) return '<button type="button" class="'+cls+(pending[r.id]?' busy':'')+'" data-toggle="'+f+'" data-id="'+esc(r.id)+'" aria-pressed="'+on+'">'+(on?'تم':'لا')+'</button>';
-  return '<span class="'+cls+'">'+(on?'تم':'لا')+'</span>';
+  return '<button type="button" class="'+cls+(pending[r.id]?' busy':'')+'" data-toggle="'+f+'" data-id="'+esc(r.id)+'" aria-pressed="'+on+'">'+(on?'تم':'لا')+'</button>';
 }
 function userCell(k){ return (!k||!USERS[k]) ? DASH : '<span class="by"><span class="avatar">'+esc(initOf(k))+'</span>'+esc(USERS[k].name)+'</span>'; }
 function actions(r){
-  if(!canEditRow(r)) return DASH;
   const i=esc(r.id);
   return '<span class="acts"><button type="button" class="mini" data-act="edit" data-id="'+i+'">تعديل</button><button type="button" class="mini del" data-act="del" data-id="'+i+'">مسح</button></span>';
 }
@@ -653,7 +765,7 @@ function actions(r){
 function renderTable(){
   const asc=rows.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)), rank={}; asc.forEach((r,i)=>{rank[r.id]=i+1});
   const q=norm($('q').value), f=FLTS.find(x=>x[0]===flt)[2];
-  let list=rows.filter(r=>f(r) && (!q || norm([r.chassis,r.make,r.description,r.color,r.buyer,r.shipNo,r.notes,nameOf(r.createdBy)].join(' ')).includes(q)));
+  let list=rows.filter(r=>vfOk(r) && f(r) && (!q || norm([r.chassis,r.make,VLABEL[vtypeOf(r)],r.description,r.color,r.buyer,r.sellerName,r.sellerPhone,r.shipNo,r.notes,nameOf(r.createdBy)].join(' ')).includes(q)));
   const get=SORTERS[sortKey]||SORTERS.createdAt, dir=sortDir==='asc'?1:-1;
   list.sort((a,b)=>{
     const x=get(a), y=get(b);
@@ -663,33 +775,36 @@ function renderTable(){
   viewRows=list;
   document.querySelectorAll('th.srt').forEach(th=>{ th.classList.remove('asc','desc'); if(th.getAttribute('data-sort')===sortKey) th.classList.add(sortDir); });
   $('tbody').innerHTML = list.map(r=>{
-    const c=calc(r);
-    const costCell = !c.any ? DASH : c.cost==null ? '<span class="dim">حدّد سعر اليورو</span>' : '<span class="pf"><bdi>'+esc(fmtNum(c.cost))+'</bdi> ج.م</span>';
+    const c=calcRow(r), vt=vtypeOf(r);
     return '<tr data-id="'+esc(r.id)+'">'
       +'<td class="c-n">'+rank[r.id]+'</td>'
       +'<td class="c-chassis">'+(r.chassis?'<bdi>'+esc(r.chassis)+'</bdi>':DASH)+(r.photoCount?'<span class="pcount">'+r.photoCount+' صور</span>':'')+'</td>'
+      +'<td><span class="tag'+(vt==='reefer'?' rf':'')+'">'+VLABEL[vt]+'</span></td>'
       +'<td>'+(r.make?esc(r.make):DASH)+'</td>'
       +'<td class="wrapc">'+(r.description?esc(r.description):DASH)+'</td>'
       +'<td>'+colorCell(r.color)+'</td>'
       +'<td>'+(r.buyer?esc(r.buyer):DASH)+'</td>'
-      +'<td class="mono">'+money(r.buyPrice,r.buyCur)+'</td>'
-      +'<td class="mono">'+money(r.extraPrice,r.extraCur)+'</td>'
-      +'<td class="mono">'+money(r.shipPrice,r.shipCur)+'</td>'
-      +'<td class="mono">'+costCell+'</td>'
-      +'<td class="mono">'+money(r.salePrice,r.saleCur)+'</td>'
+      +'<td>'+(r.sellerName?esc(r.sellerName):DASH)+'</td>'
+      +'<td class="mono">'+(r.sellerPhone?'<bdi>'+esc(r.sellerPhone)+'</bdi>':DASH)+'</td>'
+      +'<td class="mono">'+money(r.buyPrice)+'</td>'
+      +'<td class="mono">'+money(r.extraPrice)+'</td>'
+      +'<td class="mono">'+money(r.shipPrice)+'</td>'
+      +'<td class="mono">'+(c.any?'<span class="pf">'+money(c.cost)+'</span>':DASH)+'</td>'
+      +'<td class="mono">'+money(r.salePrice)+'</td>'
       +'<td>'+pfCell(c.profit)+'</td>'
+      +'<td>'+dcell(r.purchaseDate)+'</td><td>'+dcell(r.saleDate)+'</td><td>'+dcell(r.transportDate)+'</td><td>'+dcell(r.shipDate)+'</td><td>'+dcell(r.arrivalDate)+'</td>'
       +'<td>'+chip(r,'transportDone')+'</td>'
       +'<td>'+chip(r,'acidDone')+'</td>'
       +'<td class="mono">'+(r.shipNo?'<bdi>'+esc(r.shipNo)+'</bdi>':DASH)+'</td>'
       +'<td>'+chip(r,'shipDone')+'</td>'
       +'<td class="wrapc">'+(r.notes?esc(r.notes):DASH)+'</td>'
       +'<td>'+userCell(r.createdBy)+'</td>'
-      +'<td class="mono">'+esc(fmtDate(r.createdAt))+'</td>'
+      +'<td class="mono">'+esc(dstr(r.createdAt))+'</td>'
       +'<td>'+actions(r)+'</td></tr>';
   }).join('');
   const em=$('empty');
-  if(!loaded){ em.hidden=false; em.innerHTML='<strong>جاري تحميل البيانات</strong>ثواني وتظهر العربيات.'; }
-  else if(!rows.length){ em.hidden=false; em.innerHTML='<strong>لسه مفيش عربيات متسجلة</strong>اضغط «إضافة عربية» وسجّل أول عربية.'; }
+  if(!loaded){ em.hidden=false; em.innerHTML='<strong>جاري تحميل البيانات</strong>ثواني وتظهر البيانات.'; }
+  else if(!rows.length){ em.hidden=false; em.innerHTML='<strong>لسه مفيش مركبات متسجلة</strong>اضغط «إضافة عربية» وسجّل أول واحدة.'; }
   else if(!list.length){ em.hidden=false; em.innerHTML='<strong>مفيش نتيجة</strong>غيّر البحث أو الفلتر.'; }
   else em.hidden=true;
 }
@@ -697,15 +812,8 @@ $('q').addEventListener('input',renderTable);
 document.querySelector('#tbl thead').addEventListener('click',e=>{
   const th=e.target.closest('th.srt'); if(!th) return;
   const k=th.getAttribute('data-sort');
-  if(sortKey===k) sortDir = sortDir==='asc'?'desc':'asc'; else { sortKey=k; sortDir = (k==='chassis'||k==='make'||k==='buyer'||k==='by') ? 'asc' : 'desc'; }
+  if(sortKey===k) sortDir = sortDir==='asc'?'desc':'asc'; else { sortKey=k; sortDir = ['chassis','vtype','make','buyer','seller','by'].includes(k) ? 'asc' : 'desc'; }
   renderTable();
-});
-
-/* ---------- exchange rate ---------- */
-$('rateSave').addEventListener('click', async ()=>{
-  const v=Number(latin($('rateIn').value).replace(/[,،\s]/g,''));
-  if(!isFinite(v)||v<=0){ toast('اكتب سعر اليورو كرقم أكبر من صفر.'); return; }
-  try{ await setDoc(doc(db,'settings','rate'),{eurToEgp:v, by:me, at:Date.now()}); toast('اتحفظ سعر اليورو'); }catch(ex){ writeFailed(ex); }
 });
 
 /* ---------- row clicks ---------- */
@@ -714,7 +822,7 @@ $('tbody').addEventListener('click', async e=>{
   if(t){
     e.stopPropagation();
     const id=t.getAttribute('data-id'), fld=t.getAttribute('data-toggle'), r=rows.find(x=>x.id===id);
-    if(!r||pending[id]||!canEditRow(r)) return;
+    if(!r||pending[id]) return;
     pending[id]=true; renderTable();
     try{
       await updateDoc(doc(db,'trucks',id),{[fld]:!r[fld], updatedAt:Date.now(), updatedBy:me});
@@ -725,17 +833,16 @@ $('tbody').addEventListener('click', async e=>{
   const a=e.target.closest('[data-act]');
   if(a){
     e.stopPropagation();
-    const id=a.getAttribute('data-id'), r=rows.find(x=>x.id===id);
-    if(!r||!canEditRow(r)) return;
-    if(a.getAttribute('data-act')==='edit') askMath({title:'تأكيد التعديل',note:'حل المسألة عشان تعدّل العربية.',btn:'تعديل'},()=>openModal(id,true));
-    else askMath({title:'تأكيد المسح',note:'هتتمسح العربية '+(r.chassis||'')+' نهائياً.',btn:'مسح',danger:true},()=>doDelete(id));
+    const id=a.getAttribute('data-id'), r=rows.find(x=>x.id===id); if(!r) return;
+    if(a.getAttribute('data-act')==='edit') askMath({title:'تأكيد التعديل',note:'حل المسألة عشان تعدّل البيانات.',btn:'تعديل'},()=>openModal(id,true));
+    else askMath({title:'تأكيد المسح',note:'هتتمسح '+VLABEL[vtypeOf(r)]+' '+(r.chassis||'')+' نهائياً.',btn:'مسح',danger:true},()=>doDelete(id));
     return;
   }
   const tr=e.target.closest('tr[data-id]'); if(tr) openModal(tr.getAttribute('data-id'),false);
 });
 
 /* ---------- autocomplete ---------- */
-function attachAC(input, field){
+function attachAC(input, field, only){
   const list=document.createElement('div'); list.className='sug'; list.hidden=true; list.setAttribute('role','listbox');
   const w=document.createElement('div'); w.className='acw';
   input.parentNode.insertBefore(w,input); w.appendChild(input); w.appendChild(list);
@@ -744,6 +851,7 @@ function attachAC(input, field){
     const v=norm(input.value); if(!v) return [];
     const seen={}, st=[], inc=[];
     rows.forEach(r=>{
+      if(only && !only(r)) return;
       const s=String(r[field]||'').trim(), n=norm(s);
       if(!s||seen[n]||n===v) return; seen[n]=1;
       if(n.indexOf(v)===0) st.push(s); else if(n.indexOf(v)>-1) inc.push(s);
@@ -773,32 +881,46 @@ function attachAC(input, field){
   });
   list.addEventListener('pointerdown',e=>{ const b=e.target.closest('.si'); if(!b) return; e.preventDefault(); pick(+b.getAttribute('data-i')); });
 }
-attachAC($('fMakeIn'),'make'); attachAC($('fColorIn'),'color'); attachAC($('fDesc'),'description'); attachAC($('fBuyer'),'buyer'); attachAC($('fShipNo'),'shipNo');
+attachAC($('fMakeIn'),'make',r=>vtypeOf(r)===form.vtype);
+attachAC($('fColorIn'),'color'); attachAC($('fDesc'),'description'); attachAC($('fBuyer'),'buyer'); attachAC($('fShipNo'),'shipNo'); attachAC($('fSeller'),'sellerName');
+$('fSeller').addEventListener('input',()=>{
+  if($('fSellerPhone').value.trim()) return;
+  const n=norm($('fSeller').value); if(!n) return;
+  const hit=rows.find(r=>norm(r.sellerName)===n && r.sellerPhone);
+  if(hit) $('fSellerPhone').value=hit.sellerPhone;
+});
 
 /* ---------- form widgets ---------- */
 $('moneyBox').innerHTML = MONEY.map(([k,l])=>
-  '<div class="f"><label for="f_'+k+'">'+l+'</label><input id="f_'+k+'" class="mono" dir="ltr" inputmode="decimal" placeholder="0"><div class="seg cur" id="c_'+k+'" role="radiogroup" aria-label="عملة '+l+'"></div></div>').join('');
-function buildCur(k){
-  $('c_'+k).innerHTML=CURS.map(c=>'<button type="button" class="opt" role="radio" data-v="'+c[0]+'" aria-checked="'+(form.cur[k]===c[0])+'">'+c[1]+'</button>').join('');
-}
-MONEY.forEach(([k])=>{
-  $('c_'+k).addEventListener('click',e=>{ const b=e.target.closest('.opt'); if(!b||b.disabled) return; form.cur[k]=b.getAttribute('data-v'); buildCur(k); updateCalc(); });
-  $('f_'+k).addEventListener('input',updateCalc);
-});
+  '<div class="f"><label for="f_'+k+'">'+l+' (€)</label><input id="f_'+k+'" class="mono" dir="ltr" inputmode="decimal" placeholder="0"></div>').join('');
+$('dateBox').innerHTML = DATES.map(([k,l])=>
+  '<div class="f"><label for="d_'+k+'">'+l+'</label><input id="d_'+k+'" type="date" dir="ltr"></div>').join('');
+MONEY.forEach(([k])=>$('f_'+k).addEventListener('input',updateCalc));
 function readMoney(k){
   const raw=latin($('f_'+k).value).replace(/[,،\s]/g,''); if(raw==='') return {v:null};
   const v=Number(raw); return (isFinite(v)&&v>=0) ? {v} : {bad:true};
 }
 function updateCalc(){
-  const r={}; let any=false;
-  MONEY.forEach(([k])=>{ const m=readMoney(k); r[k+'Price']=m.bad?null:m.v; r[k+'Cur']=form.cur[k]; });
-  const c=calc(r), eur=MONEY.some(([k])=>has(r[k+'Price'])&&form.cur[k]==='EUR');
-  $('calcCost').textContent = !c.any ? '—' : c.cost==null ? '؟' : fmtNum(c.cost)+' ج.م';
+  const r={}; MONEY.forEach(([k])=>{ const m=readMoney(k); r[k+'Price']=m.bad?null:m.v; });
+  const c=calcRow(r);
+  $('calcCost').textContent = c.any ? fmtNum(c.cost)+' €' : '—';
   const pb=$('calcProfit'); pb.className='';
-  if(c.profit==null) pb.textContent='—'; else { pb.textContent=(c.profit>0?'+':'')+fmtNum(c.profit)+' ج.م'; pb.className=c.profit>=0?'pos':'neg'; }
-  $('calcNote').textContent = (eur && !(rate>0)) ? 'في مبلغ باليورو. الأدمن لازم يحدد سعر اليورو بالجنيه فوق الجدول عشان الحساب يشتغل.' : (eur ? 'سعر اليورو المستخدم: '+fmtNum(rate)+' جنيه.' : '');
+  if(c.profit==null) pb.textContent='—'; else { pb.textContent=(c.profit>0?'+':'')+fmtNum(c.profit)+' €'; pb.className=c.profit>=0?'pos':'neg'; }
 }
-function buildMake(){ const cur=norm($('fMakeIn').value); $('fMake').innerHTML=MAKES.map(m=>'<button type="button" class="opt" role="radio" data-v="'+esc(m)+'" aria-checked="'+(cur===norm(m))+'">'+esc(m)+'</button>').join(''); }
+function buildVType(){
+  $('fVType').innerHTML=['car','reefer'].map(k=>'<button type="button" class="opt" role="radio" data-v="'+k+'" aria-checked="'+(form.vtype===k)+'">'+VLABEL[k]+'</button>').join('');
+}
+$('fVType').addEventListener('click',e=>{
+  const b=e.target.closest('.opt'); if(!b||b.disabled) return;
+  const v=b.getAttribute('data-v'); if(v===form.vtype) return;
+  const other=PRESETS[form.vtype];
+  if(other.some(m=>norm(m)===norm($('fMakeIn').value))) $('fMakeIn').value='';
+  form.vtype=v; buildVType(); buildMake();
+});
+function buildMake(){
+  const cur=norm($('fMakeIn').value);
+  $('fMake').innerHTML=PRESETS[form.vtype].map(m=>'<button type="button" class="opt" role="radio" data-v="'+esc(m)+'" aria-checked="'+(cur===norm(m))+'">'+esc(m)+'</button>').join('');
+}
 function buildColor(){ const cur=norm($('fColorIn').value); $('fColor').innerHTML=COLORS.map(c=>'<button type="button" class="opt" role="radio" data-v="'+esc(c[0])+'" aria-checked="'+(cur===norm(c[0]))+'"><span class="sw-dot" style="background:'+c[1]+'"></span>'+esc(c[0])+'</button>').join(''); }
 const pickInto=(inputId,rebuild)=>e=>{ const b=e.target.closest('.opt'); if(!b||b.disabled) return; const inp=$(inputId), v=b.getAttribute('data-v'); inp.value = norm(inp.value)===norm(v) ? '' : v; rebuild(); };
 $('fMake').addEventListener('click',pickInto('fMakeIn',buildMake)); $('fColor').addEventListener('click',pickInto('fColorIn',buildColor));
@@ -807,7 +929,7 @@ const setSw=(id,v)=>{ const b=$(id); b.setAttribute('aria-checked',String(!!v));
 [['fTransport','transport'],['fAcid','acid'],['fShipDone','ship']].forEach(([id,k])=>$(id).addEventListener('click',function(){ if(this.disabled) return; form[k]=!form[k]; setSw(id,form[k]); }));
 function setFormEnabled(en){ Array.prototype.forEach.call($('tform').querySelectorAll('#fgrid input,#fgrid textarea,#fgrid .opt,#fgrid .switch'),el=>{el.disabled=!en}); }
 
-/* ---------- photos (stored compressed inside Firestore, up to 3 per car) ---------- */
+/* ---------- photos (stored compressed inside Firestore, up to 3 per vehicle) ---------- */
 let photos=[];
 function shrink(file){
   return new Promise((res,rej)=>{
@@ -823,10 +945,10 @@ function shrink(file){
   });
 }
 function renderPhotos(){
-  const r=rows.find(x=>x.id===editingId), canAdd=!!editingId && !readOnlyForm && r && canEditRow(r);
+  const canAdd=!!editingId && !readOnlyForm;
   $('phList').innerHTML=photos.map(p=>'<div class="th" data-id="'+esc(p.id)+'"><img src="'+p.data+'" alt="">'+(canAdd?'<button type="button" class="rm" data-rm="'+esc(p.id)+'" aria-label="مسح الصورة">×</button>':'')+'</div>').join('');
   $('phAdd').hidden=!canAdd||photos.length>=MAX_PHOTOS;
-  $('phNote').textContent = !editingId ? 'احفظ العربية الأول وبعدين ضيف الصور.' : (photos.length>=MAX_PHOTOS ? 'وصلت للحد الأقصى ('+MAX_PHOTOS+' صور).' : (!photos.length && !canAdd ? 'مفيش صور.' : ''));
+  $('phNote').textContent = !editingId ? 'احفظ البيانات الأول وبعدين ضيف الصور.' : (photos.length>=MAX_PHOTOS ? 'وصلت للحد الأقصى ('+MAX_PHOTOS+' صور).' : (!photos.length && !canAdd ? 'مفيش صور.' : ''));
 }
 async function loadPhotos(id){
   photos=[]; renderPhotos();
@@ -846,7 +968,7 @@ $('phFile').addEventListener('change',async function(){
     photos.push({id:ref.id,data,at:Date.now()});
     await updateDoc(doc(db,'trucks',id),{photoCount:photos.length});
     const r=rows.find(x=>x.id===id); if(r) writeLog(r,'أضاف صورة');
-  }catch(ex){ toast(ex&&ex.message==='big'||ex&&ex.message==='img' ? 'الصورة كبيرة أو مش مدعومة.' : 'ما اترفعتش الصورة.'); }
+  }catch(ex){ toast(ex&&(ex.message==='big'||ex.message==='img') ? 'الصورة كبيرة أو مش مدعومة.' : 'ما اترفعتش الصورة.'); }
   $('phAdd').disabled=false; renderPhotos();
 });
 $('phList').addEventListener('click',async e=>{
@@ -865,26 +987,31 @@ $('phList').addEventListener('click',async e=>{
 $('lbox').addEventListener('click',()=>{ $('lbox').hidden=true; });
 
 /* ---------- add / edit modal ---------- */
-const LABEL={chassis:'الشاسيه',make:'النوع',description:'الوصف',color:'اللون',buyer:'المشتري',buyPrice:'سعر الشراء',extraPrice:'مصاريف إضافية',shipPrice:'سعر الشحن',salePrice:'سعر البيع',
-  buyCur:'عملة الشراء',extraCur:'عملة المصاريف',shipCur:'عملة الشحن',saleCur:'عملة البيع',transportDone:'النقل',acidDone:'الأسيد',shipNo:'رقم الشحن',shipDone:'تم الشحن',notes:'الملاحظات'};
+const LABEL={vehicleType:'المركبة',chassis:'الشاسيه',make:'النوع',description:'الوصف',color:'اللون',buyer:'المشتري',sellerName:'الشركة البائعة',sellerPhone:'هاتف الشركة',
+  buyPrice:'سعر الشراء',extraPrice:'مصاريف إضافية',shipPrice:'سعر الشحن',salePrice:'سعر البيع',
+  purchaseDate:'تاريخ الشراء',saleDate:'تاريخ البيع',transportDate:'تاريخ النقل',shipDate:'تاريخ الشحن',arrivalDate:'تاريخ الوصول',
+  transportDone:'النقل',acidDone:'الأسيد',shipNo:'رقم الشحن',shipDone:'تم الشحن',notes:'الملاحظات'};
 
 function openModal(id, edit){
   if(!me) return;
   let r=null;
   if(id){ r=rows.find(x=>x.id===id); if(!r) return; }
   editingId=id||null;
-  readOnlyForm = r ? !(edit && canEditRow(r)) : false;
+  readOnlyForm = r ? !edit : false;
+  form.vtype = r ? vtypeOf(r) : (vf==='reefer'?'reefer':'car');
   form.transport=!!(r&&r.transportDone); form.acid=!!(r&&r.acidDone); form.ship=!!(r&&r.shipDone);
-  MONEY.forEach(([k])=>{ form.cur[k]=(r&&r[k+'Cur']==='EUR')?'EUR':'EGP'; $('f_'+k).value = r&&has(r[k+'Price']) ? String(r[k+'Price']) : ''; buildCur(k); });
-  $('mTitle').textContent = r ? (readOnlyForm?'تفاصيل العربية':'تعديل العربية') : 'عربية جديدة';
+  MONEY.forEach(([k])=>{ $('f_'+k).value = r&&has(r[k+'Price']) ? String(r[k+'Price']) : ''; });
+  DATES.forEach(([k])=>{ $('d_'+k).value = r&&r[k+'Date'] ? r[k+'Date'] : ''; });
+  $('mTitle').textContent = r ? (readOnlyForm?'تفاصيل المركبة':'تعديل البيانات') : 'تسجيل جديد';
   $('fChassis').value=r?r.chassis||'':''; $('fMakeIn').value=r?r.make||'':''; $('fDesc').value=r?r.description||'':'';
-  $('fColorIn').value=r?r.color||'':''; $('fBuyer').value=r?r.buyer||'':''; $('fShipNo').value=r?r.shipNo||'':''; $('fNotes').value=r?r.notes||'':'';
-  buildMake(); buildColor(); setSw('fTransport',form.transport); setSw('fAcid',form.acid); setSw('fShipDone',form.ship);
+  $('fColorIn').value=r?r.color||'':''; $('fBuyer').value=r?r.buyer||'':''; $('fSeller').value=r?r.sellerName||'':''; $('fSellerPhone').value=r?r.sellerPhone||'':'';
+  $('fShipNo').value=r?r.shipNo||'':''; $('fNotes').value=r?r.notes||'':'';
+  buildVType(); buildMake(); buildColor(); setSw('fTransport',form.transport); setSw('fAcid',form.acid); setSw('fShipDone',form.ship);
   setFormEnabled(!readOnlyForm); updateCalc();
   const meta=$('mMeta');
-  if(r){ let t='سجّلها '+nameOf(r.createdBy)+(r.createdAt?' • '+fmtDate(r.createdAt):''); if(r.updatedBy&&r.updatedAt&&r.updatedAt!==r.createdAt) t+=' — آخر تعديل: '+nameOf(r.updatedBy)+' • '+fmtDate(r.updatedAt); meta.textContent=t; meta.hidden=false; } else meta.hidden=true;
+  if(r){ let t='سجّلها '+nameOf(r.createdBy)+(r.createdAt?' • '+dstr(r.createdAt):''); if(r.updatedBy&&r.updatedAt&&r.updatedAt!==r.createdAt) t+=' — آخر تعديل: '+nameOf(r.updatedBy)+' • '+dstr(r.updatedAt); meta.textContent=t; meta.hidden=false; } else meta.hidden=true;
   $('mErr').hidden=true; $('saveBtn').hidden=readOnlyForm; $('saveBtn').disabled=false;
-  $('delBtn').hidden=!(r&&canEditRow(r)); $('editBtn').hidden=!(r&&readOnlyForm&&canEditRow(r));
+  $('delBtn').hidden=!r; $('editBtn').hidden=!(r&&readOnlyForm);
   $('modal').hidden=false; document.documentElement.style.overflow='hidden';
   photos=[]; renderPhotos(); if(r) loadPhotos(r.id);
   if(!r) setTimeout(()=>$('fChassis').focus(),30);
@@ -896,21 +1023,21 @@ $('modal').addEventListener('pointerdown',e=>{ if(e.target===$('modal')) closeMo
 
 $('editBtn').addEventListener('click',()=>{
   const id=editingId; if(!id) return;
-  askMath({title:'تأكيد التعديل',note:'حل المسألة عشان تعدّل العربية.',btn:'تعديل'},()=>{
-    const r=rows.find(x=>x.id===id); if(!r||!canEditRow(r)||editingId!==id) return;
-    readOnlyForm=false; setFormEnabled(true); $('mTitle').textContent='تعديل العربية'; $('saveBtn').hidden=false; $('editBtn').hidden=true; renderPhotos(); $('fChassis').focus();
+  askMath({title:'تأكيد التعديل',note:'حل المسألة عشان تعدّل البيانات.',btn:'تعديل'},()=>{
+    if(editingId!==id) return;
+    readOnlyForm=false; setFormEnabled(true); $('mTitle').textContent='تعديل البيانات'; $('saveBtn').hidden=false; $('editBtn').hidden=true; renderPhotos(); $('fChassis').focus();
   });
 });
 $('delBtn').addEventListener('click',()=>{
-  const id=editingId; if(!id) return; const r=rows.find(x=>x.id===id); if(!r||!canEditRow(r)) return;
-  askMath({title:'تأكيد المسح',note:'هتتمسح العربية '+(r.chassis||'')+' نهائياً.',btn:'مسح',danger:true},()=>doDelete(id));
+  const id=editingId; if(!id) return; const r=rows.find(x=>x.id===id); if(!r) return;
+  askMath({title:'تأكيد المسح',note:'هتتمسح '+VLABEL[vtypeOf(r)]+' '+(r.chassis||'')+' نهائياً.',btn:'مسح',danger:true},()=>doDelete(id));
 });
 async function doDelete(id){
   const r=rows.find(x=>x.id===id); if(!r||pending[id]) return; pending[id]=true;
   try{
     try{ const s=await getDocs(collection(db,'trucks',id,'photos')); await Promise.all(s.docs.map(d=>deleteDoc(d.ref))); }catch(e){}
     await deleteDoc(doc(db,'trucks',id));
-    writeLog(r,'مسح العربية'); toast('اتمسحت العربية'); if(editingId===id) closeModal();
+    writeLog(r,'مسح '+VLABEL[vtypeOf(r)]); toast('اتمسحت'); if(editingId===id) closeModal();
   }catch(ex){ writeFailed(ex); }
   delete pending[id]; renderTable();
 }
@@ -920,32 +1047,35 @@ $('tform').addEventListener('submit', async e=>{
   const err=$('mErr'); err.hidden=true;
   const chassis=latin($('fChassis').value).trim().toUpperCase().replace(/\s+/g,'');
   if(chassis && rows.some(r=>r.id!==editingId && norm(r.chassis)===norm(chassis))){ err.textContent='رقم الشاسيه ده متسجل قبل كده.'; err.hidden=false; $('fChassis').focus(); return; }
-  const data={ chassis, make:$('fMakeIn').value.trim(), description:$('fDesc').value.trim(), color:$('fColorIn').value.trim(), buyer:$('fBuyer').value.trim(),
+  const data={ vehicleType:form.vtype, chassis, make:$('fMakeIn').value.trim(), description:$('fDesc').value.trim(), color:$('fColorIn').value.trim(), buyer:$('fBuyer').value.trim(),
+    sellerName:$('fSeller').value.trim(), sellerPhone:latin($('fSellerPhone').value).trim(),
     transportDone:form.transport, acidDone:form.acid, shipNo:latin($('fShipNo').value).trim(), shipDone:form.ship, notes:$('fNotes').value.trim() };
   for(const [k,l] of MONEY){
     const m=readMoney(k);
     if(m.bad){ err.textContent=l+' لازم يكون رقم.'; err.hidden=false; $('f_'+k).focus(); return; }
-    data[k+'Price']=m.v; data[k+'Cur']=form.cur[k];
+    data[k+'Price']=m.v;
   }
-  const empty = !data.chassis&&!data.make&&!data.description&&!data.color&&!data.buyer&&!data.shipNo&&!data.notes&&!data.transportDone&&!data.acidDone&&!data.shipDone&&MONEY.every(([k])=>data[k+'Price']==null);
+  DATES.forEach(([k])=>{ data[k+'Date']=$('d_'+k).value||''; });
+  const empty = !data.chassis&&!data.make&&!data.description&&!data.color&&!data.buyer&&!data.sellerName&&!data.sellerPhone&&!data.shipNo&&!data.notes&&!data.transportDone&&!data.acidDone&&!data.shipDone
+    &&MONEY.every(([k])=>data[k+'Price']==null)&&DATES.every(([k])=>!data[k+'Date']);
   if(empty){ err.textContent='اكتب أي بيان قبل الحفظ.'; err.hidden=false; $('fChassis').focus(); return; }
   const now=Date.now(); $('saveBtn').disabled=true;
   try{
     if(editingId){
       const old=rows.find(x=>x.id===editingId)||{};
+      const show=(k,v)=>k==='vehicleType' ? VLABEL[v==='reefer'?'reefer':'car'] : typeof v==='boolean' ? (v?'تم':'لا') : (v===''||v==null?'فاضي':String(v).slice(0,40));
       const diffs=[]; Object.keys(LABEL).forEach(k=>{
-        if(k.endsWith('Cur') && !has(data[k.replace('Cur','Price')]) && !has(old[k.replace('Cur','Price')])) return;
-        const a=old[k], b=data[k], A=(a==null?'':a), B=(b==null?'':b);
+        const a = k==='vehicleType' ? vtypeOf(old) : old[k], b=data[k];
+        const A=(a==null?'':a), B=(b==null?'':b);
         if(String(A)===String(B)) return;
-        const show=v=>typeof v==='boolean'?(v?'تم':'لا'):(v===''||v==null?'فاضي':String(v).slice(0,40));
-        diffs.push(LABEL[k]+': '+show(a===undefined&&typeof b==='boolean'?false:a)+' ← '+show(b));
+        diffs.push(LABEL[k]+': '+show(k,a===undefined&&typeof b==='boolean'?false:a)+' ← '+show(k,b));
       });
       if(!diffs.length){ closeModal(); toast('مفيش تغيير.'); return; }
       await updateDoc(doc(db,'trucks',editingId),Object.assign(data,{updatedAt:now,updatedBy:me}));
       writeLog({id:editingId,chassis:data.chassis||old.chassis},'عدّل: '+diffs.join(' • ')); toast('اتحفظ التعديل');
     }else{
       const ref=await addDoc(collection(db,'trucks'),Object.assign(data,{createdBy:me,createdAt:now,updatedAt:now,updatedBy:me,photoCount:0}));
-      writeLog({id:ref.id,chassis:data.chassis},'سجّل عربية جديدة'); toast('اتسجلت العربية');
+      writeLog({id:ref.id,chassis:data.chassis},'سجّل '+VLABEL[form.vtype]+' جديدة'); toast('اتسجلت');
     }
     closeModal();
   }catch(ex){ $('saveBtn').disabled=false; err.textContent = (ex&&ex.code==='permission-denied') ? 'مش مسموح لك بالحفظ.' : 'ما اتحفظش. اتأكد من النت وجرّب تاني.'; err.hidden=false; }
@@ -953,7 +1083,7 @@ $('tform').addEventListener('submit', async e=>{
 
 /* ---------- change log ---------- */
 function renderLog(){
-  $('logList').innerHTML = logs.length ? logs.map(l=>'<li><div class="t"><b>'+esc(nameOf(l.by))+'</b><span>'+esc(fmtDate(l.at))+' '+esc(new Date(l.at).toTimeString().slice(0,5))+'</span>'+(l.chassis?'<bdi class="mono">'+esc(l.chassis)+'</bdi>':'')+'</div>'+esc(l.text)+'</li>').join('') : '<li>لسه مفيش تغييرات متسجلة.</li>';
+  $('logList').innerHTML = logs.length ? logs.map(l=>'<li><div class="t"><b>'+esc(nameOf(l.by))+'</b><span>'+esc(dstr(l.at))+' '+esc(new Date(l.at).toTimeString().slice(0,5))+'</span>'+(l.chassis?'<bdi class="mono">'+esc(l.chassis)+'</bdi>':'')+'</div>'+esc(l.text)+'</li>').join('') : '<li>لسه مفيش تغييرات متسجلة.</li>';
 }
 $('logBtn').addEventListener('click',()=>{ renderLog(); $('logModal').hidden=false; document.documentElement.style.overflow='hidden'; });
 const closeLog=()=>{ $('logModal').hidden=true; if($('modal').hidden && $('mathModal').hidden) document.documentElement.style.overflow=''; };
@@ -989,62 +1119,15 @@ $('mathForm').addEventListener('submit', async e=>{
 $('fab').addEventListener('click',()=>{
   if(!viewRows.length){ toast('مفيش صفوف معروضة تتصدّر.'); return; }
   const filtered = viewRows.length!==rows.length;
-  askMath({title:'تأكيد قبل التصدير',note:'هتتصدّر '+viewRows.length+' عربية'+(filtered?' (المعروضة حاليًا بعد البحث أو الفلتر)':'')+'.',btn:'تصدير'},exportXlsx);
+  askMath({title:'تأكيد قبل التصدير',note:'هتتصدّر '+viewRows.length+' من المركبات'+(filtered?' (المعروضة حاليًا بعد البحث أو الفلتر)':'')+'.',btn:'تصدير'},exportXlsx);
 });
 function saveBlob(blob,name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1500); }
-
 async function exportXlsx(){
   if(typeof ExcelJS==='undefined'){ toast('مكتبة الإكسل ما اتحمّلتش. حدّث الصفحة وجرّب تاني.'); return; }
   toast('بنجهّز الملف…');
   try{
-    const list=viewRows.slice(), NC=19, HEAD=4, first=HEAD+1;
-    const wb=new ExcelJS.Workbook(); wb.creator='سجل العربيات'; wb.created=new Date();
-    const ws=wb.addWorksheet('العربيات',{views:[{rightToLeft:true,state:'frozen',xSplit:2,ySplit:HEAD,showGridLines:false}],properties:{tabColor:{argb:'FF1F4F60'}},pageSetup:{orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0}});
-    [6,24,13,34,12,22,17,17,17,19,17,19,11,11,18,13,34,14,14].forEach((w,i)=>{ws.getColumn(i+1).width=w});
-    const FONT='Arial', thin={style:'thin',color:{argb:'FFD8DCD8'}}, border={top:thin,left:thin,bottom:thin,right:thin};
-    const fill=c=>({type:'pattern',pattern:'solid',fgColor:{argb:'FF'+c}});
-    const al=(h)=>({horizontal:h,vertical:'middle',wrapText:true,readingOrder:'rtl'});
-
-    ws.mergeCells(1,1,1,NC); const t=ws.getCell(1,1); t.value='سجل العربيات';
-    t.font={name:FONT,size:20,bold:true,color:{argb:'FFFFFFFF'}}; t.fill=fill('1F4F60'); t.alignment=al('center'); ws.getRow(1).height=38;
-
-    const nT=list.filter(r=>r.transportDone).length, nA=list.filter(r=>r.acidDone).length, nS=list.filter(r=>r.shipDone).length;
-    ws.mergeCells(2,1,2,NC); const s=ws.getCell(2,1);
-    s.value='تاريخ التصدير: '+fmtDate(Date.now())+'   •   عدد العربيات: '+list.length+'   •   تم النقل: '+nT+'   •   تم الأسيد: '+nA+'   •   تم الشحن: '+nS+(rate>0?'   •   سعر اليورو: '+fmtNum(rate)+' جنيه':'');
-    s.font={name:FONT,size:11,color:{argb:'FF3E4A52'}}; s.fill=fill('E6EEF0'); s.alignment=al('center'); ws.getRow(2).height=26; ws.getRow(3).height=8;
-
-    const heads=['م','رقم الشاسيه','النوع','الوصف','اللون','المشتري','سعر الشراء','مصاريف إضافية','سعر الشحن','إجمالي التكلفة (ج.م)','سعر البيع','الربح (ج.م)','النقل','الأسيد','رقم الشحن','تم الشحن','ملاحظات','سجّلها','تاريخ التسجيل'];
-    const hr=ws.getRow(HEAD); hr.height=30;
-    heads.forEach((h,i)=>{ const c=hr.getCell(i+1); c.value=h; c.font={name:FONT,size:12,bold:true,color:{argb:'FFFFFFFF'}}; c.fill=fill('2B6A80'); c.border=border; c.alignment=al('center'); });
-
-    const cf=c=>c==='EUR'?'#,##0.##" €"':'#,##0.##" ج.م"', EG='#,##0.##" ج.م"';
-    let sumCost=0, sumProfit=0;
-    list.forEach((r,i)=>{
-      const row=ws.getRow(first+i), zebra=(i%2===1)?'F5F6F4':'FFFFFF', c=calc(r);
-      const n=p=>has(r[p])?Number(r[p]):null;
-      const vals=[i+1,r.chassis||'',r.make||'',r.description||'',r.color||'',r.buyer||'',n('buyPrice'),n('extraPrice'),n('shipPrice'),c.any?c.cost:null,n('salePrice'),c.profit,
-        r.transportDone?'تم':'لا',r.acidDone?'تم':'لا',r.shipNo||'',r.shipDone?'تم':'لا',r.notes||'',nameOf(r.createdBy),fmtDate(r.createdAt)];
-      if(c.any&&c.cost!=null) sumCost+=c.cost; if(c.profit!=null) sumProfit+=c.profit;
-      vals.forEach((v,k)=>{
-        const cell=row.getCell(k+1); cell.value=v; cell.font={name:FONT,size:11,color:{argb:'FF1B2328'}}; cell.fill=fill(zebra); cell.border=border;
-        cell.alignment=al([3,5,16].indexOf(k+1)>-1 ? 'right' : 'center');
-      });
-      row.getCell(2).font={name:'Courier New',size:11,bold:true,color:{argb:'FF1B2328'}};
-      row.getCell(7).numFmt=cf(r.buyCur); row.getCell(8).numFmt=cf(r.extraCur); row.getCell(9).numFmt=cf(r.shipCur); row.getCell(11).numFmt=cf(r.saleCur);
-      row.getCell(10).numFmt=EG; row.getCell(12).numFmt=EG;
-      if(c.profit!=null){ row.getCell(12).font={name:FONT,size:11,bold:true,color:{argb:c.profit>=0?'FF1D7449':'FFA63D2F'}}; }
-      [13,14,16].forEach(k=>{ const cell=row.getCell(k), ok=cell.value==='تم'; cell.fill=fill(ok?'DDF0E5':'F1F2F0'); cell.font={name:FONT,size:11,bold:ok,color:{argb:ok?'FF1D7449':'FF8A949B'}}; });
-      row.height=Math.max(22,Math.min(60,Math.ceil(Math.max((r.description||'').length,(r.notes||'').length)/32)*16+8));
-    });
-    const last=first+list.length-1, tr=last+1;
-    const lab=ws.getCell(tr,6); lab.value='الإجمالي (ج.م)';
-    const tc=ws.getCell(tr,10); tc.value={formula:'SUM(J'+first+':J'+last+')',result:sumCost}; tc.numFmt=EG;
-    const tp=ws.getCell(tr,12); tp.value={formula:'SUM(L'+first+':L'+last+')',result:sumProfit}; tp.numFmt=EG;
-    [lab,tc,tp].forEach(c=>{ c.font={name:FONT,size:12,bold:true,color:{argb:'FF3D2F05'}}; c.fill=fill('FBEBC0'); c.border=border; c.alignment=al('center'); });
-    ws.getRow(tr).height=26;
-    ws.autoFilter={from:{row:HEAD,column:1},to:{row:last,column:NC}};
-    const buf=await wb.xlsx.writeBuffer();
-    saveBlob(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'سجل-العربيات-'+fmtDate(Date.now())+'.xlsx');
+    const out=await buildWorkbookBuffer(ExcelJS, viewRows.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)), nameOf);
+    saveBlob(new Blob([out.buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'سجل-العربيات-'+dstr(Date.now())+'.xlsx');
     toast('اتحفظ ملف الإكسل');
   }catch(ex){ console.error(ex); toast('ما قدرناش نطلّع الملف.'); }
 }
@@ -1056,6 +1139,7 @@ document.addEventListener('keydown',e=>{
   else if(!$('logModal').hidden) closeLog();
   else if(!$('modal').hidden) closeModal();
 });
+
 </script>
 </body>
 </html>
