@@ -1,0 +1,25 @@
+name: Daily report
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 06:00 UTC = 8 صباحاً شتاءً و9 صباحاً صيفاً بتوقيت القاهرة
+  workflow_dispatch:       # تشغيل يدوي من تبويب Actions للتجربة
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: report
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-audit --no-fund
+      - run: node report.mjs
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
