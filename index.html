@@ -508,7 +508,7 @@ fieldset .fs input[type=date]{width:100%}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, EMAIL_DOMAIN, USERS } from "./config.js";
 
 /* ===== shared by the page and the daily report: money maths + Excel layout (EUR only) ===== */
@@ -632,7 +632,10 @@ const dcell = s => s ? '<span class="mono">'+esc(s)+'</span>' : DASH;
 const configured = firebaseConfig && firebaseConfig.apiKey && !/PASTE/i.test(firebaseConfig.apiKey);
 let auth=null, db=null;
 if(configured){
-  try{ const app=initializeApp(firebaseConfig); auth=getAuth(app); db=getFirestore(app); }catch(e){ console.error(e); }
+  try{ const app=initializeApp(firebaseConfig); auth=getAuth(app);
+    /* حفظ البيانات على الجهاز: الفتحة التانية تقرا اللي اتغيّر بس، فبتوفّر قراءات كتير */
+    try{ db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})}); }
+    catch(e){ console.warn('cache off',e); db=getFirestore(app); } }catch(e){ console.error(e); }
 }
 
 /* ---------- state ---------- */
