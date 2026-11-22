@@ -42,6 +42,7 @@ async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
     { h: 'الوصف', w: 34, v: r => r.description || '', a: 'right' },
     { h: 'اللون', w: 12, v: r => r.color || '', a: 'center' },
     { h: 'المشتري', w: 22, v: r => r.buyer || '', a: 'right' },
+    { h: 'رقم المشتري', w: 18, v: r => r.buyerPhone || '', a: 'center', text: true },
     { h: 'الشركة البائعة', w: 24, v: r => r.sellerName || '', a: 'right' },
     { h: 'هاتف الشركة', w: 18, v: r => r.sellerPhone || '', a: 'center', text: true },
     { h: 'سعر الشراء (€)', w: 16, v: num('buyPrice'), a: 'center', fmt: EUR },
