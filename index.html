@@ -343,7 +343,7 @@ fieldset .fs input[type=date]{width:100%}
       <div class="flts" id="flts"></div>
       <div class="sheet card">
         <div class="scroll">
-          <table id="tbl" style="min-width:3300px">
+          <table id="tbl" style="min-width:3450px">
             <thead>
               <tr>
                 <th>م</th>
@@ -353,6 +353,7 @@ fieldset .fs input[type=date]{width:100%}
                 <th>الوصف</th>
                 <th>اللون</th>
                 <th class="srt" data-sort="buyer">المشتري</th>
+                <th>رقم المشتري</th>
                 <th class="srt" data-sort="seller">الشركة البائعة</th>
                 <th>هاتف الشركة</th>
                 <th class="srt" data-sort="buy">سعر الشراء</th>
@@ -416,9 +417,13 @@ fieldset .fs input[type=date]{width:100%}
           <div class="swatches" id="fColor" role="radiogroup" aria-label="اللون"></div>
           <input id="fColorIn" placeholder="أو اكتب اللون">
         </div>
-        <div class="f full">
+        <div class="f">
           <label for="fBuyer">المشتري</label>
           <input id="fBuyer" placeholder="اسم المشتري">
+        </div>
+        <div class="f">
+          <label for="fBuyerPhone">رقم المشتري</label>
+          <input id="fBuyerPhone" class="mono" dir="ltr" inputmode="tel" placeholder="+20 …">
         </div>
         <div class="f">
           <label for="fSeller">الشركة البائعة</label>
@@ -554,6 +559,7 @@ async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
     { h: 'الوصف', w: 34, v: r => r.description || '', a: 'right' },
     { h: 'اللون', w: 12, v: r => r.color || '', a: 'center' },
     { h: 'المشتري', w: 22, v: r => r.buyer || '', a: 'right' },
+    { h: 'رقم المشتري', w: 18, v: r => r.buyerPhone || '', a: 'center', text: true },
     { h: 'الشركة البائعة', w: 24, v: r => r.sellerName || '', a: 'right' },
     { h: 'هاتف الشركة', w: 18, v: r => r.sellerPhone || '', a: 'center', text: true },
     { h: 'سعر الشراء (€)', w: 16, v: num('buyPrice'), a: 'center', fmt: EUR },
@@ -781,7 +787,7 @@ function actions(r){
 function renderTable(){
   const asc=rows.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)), rank={}; asc.forEach((r,i)=>{rank[r.id]=i+1});
   const q=norm($('q').value), f=FLTS.find(x=>x[0]===flt)[2];
-  let list=rows.filter(r=>vfOk(r) && f(r) && (!q || norm([r.chassis,r.make,VLABEL[vtypeOf(r)],r.description,r.color,r.buyer,r.sellerName,r.sellerPhone,r.shipNo,r.notes,nameOf(r.createdBy)].join(' ')).includes(q)));
+  let list=rows.filter(r=>vfOk(r) && f(r) && (!q || norm([r.chassis,r.make,VLABEL[vtypeOf(r)],r.description,r.color,r.buyer,r.buyerPhone,r.sellerName,r.sellerPhone,r.shipNo,r.notes,nameOf(r.createdBy)].join(' ')).includes(q)));
   const get=SORTERS[sortKey]||SORTERS.createdAt, dir=sortDir==='asc'?1:-1;
   list.sort((a,b)=>{
     const x=get(a), y=get(b);
@@ -800,6 +806,7 @@ function renderTable(){
       +'<td class="wrapc">'+(r.description?esc(r.description):DASH)+'</td>'
       +'<td>'+colorCell(r.color)+'</td>'
       +'<td>'+(r.buyer?esc(r.buyer):DASH)+'</td>'
+      +'<td class="mono">'+(r.buyerPhone?'<bdi>'+esc(r.buyerPhone)+'</bdi>':DASH)+'</td>'
       +'<td>'+(r.sellerName?esc(r.sellerName):DASH)+'</td>'
       +'<td class="mono">'+(r.sellerPhone?'<bdi>'+esc(r.sellerPhone)+'</bdi>':DASH)+'</td>'
       +'<td class="mono">'+money(r.buyPrice)+'</td>'
@@ -899,6 +906,12 @@ function attachAC(input, field, only){
 }
 attachAC($('fMakeIn'),'make',r=>vtypeOf(r)===form.vtype);
 attachAC($('fColorIn'),'color'); attachAC($('fDesc'),'description'); attachAC($('fBuyer'),'buyer'); attachAC($('fShipNo'),'shipNo'); attachAC($('fSeller'),'sellerName');
+$('fBuyer').addEventListener('input',()=>{
+  if($('fBuyerPhone').value.trim()) return;
+  const n=norm($('fBuyer').value); if(!n) return;
+  const hit=rows.find(r=>norm(r.buyer)===n && r.buyerPhone);
+  if(hit) $('fBuyerPhone').value=hit.buyerPhone;
+});
 $('fSeller').addEventListener('input',()=>{
   if($('fSellerPhone').value.trim()) return;
   const n=norm($('fSeller').value); if(!n) return;
@@ -946,7 +959,7 @@ const setSw=(id,v)=>{ const b=$(id); b.setAttribute('aria-checked',String(!!v));
 function setFormEnabled(en){ Array.prototype.forEach.call($('tform').querySelectorAll('#fgrid input,#fgrid textarea,#fgrid .opt,#fgrid .switch'),el=>{el.disabled=!en}); }
 
 /* ---------- photos & documents (compressed, stored inside Firestore) ---------- */
-const SLOTS=[['license','صورة الرخصة',1,1500],['vehicle','صور المركبة',2,1000],['policy','صورة البوليصة',1,1500],['other','أخرى (إضافي)',2,1000]];
+const SLOTS=[['license','صور الرخصة',2,1500],['vehicle','صور المركبة',2,1000],['policy','صور البوليصة',2,1500],['other','أخرى (إضافي)',2,1000]];
 const slotOf=p=>(p&&['license','vehicle','policy'].includes(p.slot))?p.slot:'other';
 let photos=[], curSlot='other', busyPh=false;
 function shrink(file,maxDim){
@@ -1018,7 +1031,7 @@ $('phFile').addEventListener('change',async function(){
 $('lbox').addEventListener('click',()=>{ $('lbox').hidden=true; });
 
 /* ---------- add / edit modal ---------- */
-const LABEL={vehicleType:'المركبة',chassis:'الشاسيه',make:'النوع',description:'الوصف',color:'اللون',buyer:'المشتري',sellerName:'الشركة البائعة',sellerPhone:'هاتف الشركة',
+const LABEL={vehicleType:'المركبة',chassis:'الشاسيه',make:'النوع',description:'الوصف',color:'اللون',buyer:'المشتري',buyerPhone:'رقم المشتري',sellerName:'الشركة البائعة',sellerPhone:'هاتف الشركة',
   buyPrice:'سعر الشراء',extraPrice:'مصاريف إضافية',shipPrice:'سعر الشحن',salePrice:'سعر البيع',
   purchaseDate:'تاريخ الشراء',saleDate:'تاريخ البيع',transportDate:'تاريخ النقل',shipDate:'تاريخ الشحن',arrivalDate:'تاريخ الوصول',
   transportDone:'النقل',acidDone:'الأسيد',shipNo:'رقم الشحن',shipDone:'تم الشحن',notes:'الملاحظات'};
@@ -1035,7 +1048,7 @@ function openModal(id, edit){
   DATES.forEach(([k])=>{ $('d_'+k).value = r&&r[k+'Date'] ? r[k+'Date'] : ''; });
   $('mTitle').textContent = r ? (readOnlyForm?'تفاصيل المركبة':'تعديل البيانات') : 'تسجيل جديد';
   $('fChassis').value=r?r.chassis||'':''; $('fMakeIn').value=r?r.make||'':''; $('fDesc').value=r?r.description||'':'';
-  $('fColorIn').value=r?r.color||'':''; $('fBuyer').value=r?r.buyer||'':''; $('fSeller').value=r?r.sellerName||'':''; $('fSellerPhone').value=r?r.sellerPhone||'':'';
+  $('fColorIn').value=r?r.color||'':''; $('fBuyer').value=r?r.buyer||'':''; $('fBuyerPhone').value=r?r.buyerPhone||'':''; $('fSeller').value=r?r.sellerName||'':''; $('fSellerPhone').value=r?r.sellerPhone||'':'';
   $('fShipNo').value=r?r.shipNo||'':''; $('fNotes').value=r?r.notes||'':'';
   buildVType(); buildMake(); buildColor(); setSw('fTransport',form.transport); setSw('fAcid',form.acid); setSw('fShipDone',form.ship);
   setFormEnabled(!readOnlyForm); updateCalc();
@@ -1078,7 +1091,7 @@ $('tform').addEventListener('submit', async e=>{
   const err=$('mErr'); err.hidden=true;
   const chassis=latin($('fChassis').value).trim().toUpperCase().replace(/\s+/g,'');
   if(chassis && rows.some(r=>r.id!==editingId && norm(r.chassis)===norm(chassis))){ err.textContent='رقم الشاسيه ده متسجل قبل كده.'; err.hidden=false; $('fChassis').focus(); return; }
-  const data={ vehicleType:form.vtype, chassis, make:$('fMakeIn').value.trim(), description:$('fDesc').value.trim(), color:$('fColorIn').value.trim(), buyer:$('fBuyer').value.trim(),
+  const data={ vehicleType:form.vtype, chassis, make:$('fMakeIn').value.trim(), description:$('fDesc').value.trim(), color:$('fColorIn').value.trim(), buyer:$('fBuyer').value.trim(), buyerPhone:latin($('fBuyerPhone').value).trim(),
     sellerName:$('fSeller').value.trim(), sellerPhone:latin($('fSellerPhone').value).trim(),
     transportDone:form.transport, acidDone:form.acid, shipNo:latin($('fShipNo').value).trim(), shipDone:form.ship, notes:$('fNotes').value.trim() };
   for(const [k,l] of MONEY){
@@ -1087,7 +1100,7 @@ $('tform').addEventListener('submit', async e=>{
     data[k+'Price']=m.v;
   }
   DATES.forEach(([k])=>{ data[k+'Date']=$('d_'+k).value||''; });
-  const empty = !data.chassis&&!data.make&&!data.description&&!data.color&&!data.buyer&&!data.sellerName&&!data.sellerPhone&&!data.shipNo&&!data.notes&&!data.transportDone&&!data.acidDone&&!data.shipDone
+  const empty = !data.chassis&&!data.make&&!data.description&&!data.color&&!data.buyer&&!data.buyerPhone&&!data.sellerName&&!data.sellerPhone&&!data.shipNo&&!data.notes&&!data.transportDone&&!data.acidDone&&!data.shipDone
     &&MONEY.every(([k])=>data[k+'Price']==null)&&DATES.every(([k])=>!data[k+'Date']);
   if(empty){ err.textContent='اكتب أي بيان قبل الحفظ.'; err.hidden=false; $('fChassis').focus(); return; }
   const now=Date.now(); $('saveBtn').disabled=true;
