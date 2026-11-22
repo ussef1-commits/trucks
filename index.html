@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>سجل العربيات</title>
+<meta name="theme-color" content="#1f4f60">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="سجل العربيات">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Reem+Kufi:wght@500;700&family=Tajawal:wght@400;500;700&display=swap">
@@ -260,6 +268,11 @@ th.srt.desc::after{content:" ▼";font-size:10px}
 .flts .sep{display:inline-block;width:1px;height:22px;background:rgba(120,120,120,.35);margin:0 6px;align-self:center}
 .stat small{display:block;margin:2px 0 0;margin-inline-start:0}
 fieldset .fs input[type=date]{width:100%}
+.phg{margin-bottom:12px}
+.phh{display:flex;justify-content:space-between;align-items:center;font-size:13.5px;font-weight:700;margin-bottom:6px}
+.phh small{color:var(--muted);font-weight:400}
+.ph .phadd{width:96px;height:72px;border-radius:9px;border:1.5px dashed var(--line);background:transparent;color:var(--muted);cursor:pointer;font:inherit;font-size:13.5px}
+.ph .phadd:disabled{opacity:.5;cursor:wait}
 </style>
 </head>
 <body>
@@ -452,10 +465,9 @@ fieldset .fs input[type=date]{width:100%}
           <textarea id="fNotes" rows="3" placeholder="أي تفاصيل إضافية"></textarea>
         </div>
         <div class="f full" id="photoBox">
-          <span class="lbl">صور المركبة</span>
-          <div class="ph" id="phList"></div>
+          <span class="lbl">الصور والمستندات</span>
+          <div id="phGroups"></div>
           <p class="ok-note" id="phNote"></p>
-          <button type="button" class="btn" id="phAdd">إضافة صورة</button>
           <input type="file" id="phFile" accept="image/*" hidden>
         </div>
       </div>
@@ -622,7 +634,6 @@ const PRESETS = { car:['مان','مرسيدس','فولفو'], reefer:['كرون�
 const COLORS = [['أبيض','#f4f4f1'],['أحمر','#c43a2d'],['أزرق','#2b5fa3'],['أسود','#23282d']];
 const MONEY = [['buy','سعر الشراء'],['extra','مصاريف إضافية'],['ship','سعر الشحن'],['sale','سعر البيع']];
 const DATES = [['purchase','تاريخ الشراء'],['sale','تاريخ البيع'],['transport','تاريخ النقل'],['ship','تاريخ الشحن'],['arrival','تاريخ الوصول']];
-const MAX_PHOTOS = 3;
 
 const money = n => has(n) ? '<bdi>'+esc(fmtNum(n))+'</bdi> €' : DASH;
 const pfCell = p => p==null ? DASH : '<span class="pf '+(p>=0?'pos':'neg')+'"><bdi>'+(p>0?'+':'')+esc(fmtNum(p))+'</bdi> €</span>';
@@ -934,15 +945,22 @@ const setSw=(id,v)=>{ const b=$(id); b.setAttribute('aria-checked',String(!!v));
 [['fTransport','transport'],['fAcid','acid'],['fShipDone','ship']].forEach(([id,k])=>$(id).addEventListener('click',function(){ if(this.disabled) return; form[k]=!form[k]; setSw(id,form[k]); }));
 function setFormEnabled(en){ Array.prototype.forEach.call($('tform').querySelectorAll('#fgrid input,#fgrid textarea,#fgrid .opt,#fgrid .switch'),el=>{el.disabled=!en}); }
 
-/* ---------- photos (stored compressed inside Firestore, up to 3 per vehicle) ---------- */
-let photos=[];
-function shrink(file){
+/* ---------- photos & documents (compressed, stored inside Firestore) ---------- */
+const SLOTS=[['license','صورة الرخصة',1,1500],['vehicle','صور المركبة',2,1000],['policy','صورة البوليصة',1,1500],['other','أخرى (إضافي)',2,1000]];
+const slotOf=p=>(p&&['license','vehicle','policy'].includes(p.slot))?p.slot:'other';
+let photos=[], curSlot='other', busyPh=false;
+function shrink(file,maxDim){
   return new Promise((res,rej)=>{
     const img=new Image(), url=URL.createObjectURL(file);
     img.onload=()=>{
-      let w=img.width, h=img.height; const k=Math.min(1,900/Math.max(w,h)); w=Math.round(w*k); h=Math.round(h*k);
-      const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0,w,h); URL.revokeObjectURL(url);
-      let out=cv.toDataURL('image/jpeg',0.72); if(out.length>700000) out=cv.toDataURL('image/jpeg',0.5);
+      let dim=maxDim, out='';
+      for(let i=0;i<3;i++){
+        const k=Math.min(1,dim/Math.max(img.width,img.height)), w=Math.round(img.width*k), h=Math.round(img.height*k);
+        const cv=document.createElement('canvas'); cv.width=w; cv.height=h; cv.getContext('2d').drawImage(img,0,0,w,h);
+        out=cv.toDataURL('image/jpeg',0.72); if(out.length>700000) out=cv.toDataURL('image/jpeg',0.5);
+        if(out.length<=900000) break; dim=Math.round(dim*0.7);
+      }
+      URL.revokeObjectURL(url);
       out.length>900000 ? rej(new Error('big')) : res(out);
     };
     img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('img')); };
@@ -951,32 +969,26 @@ function shrink(file){
 }
 function renderPhotos(){
   const canAdd=!!editingId && !readOnlyForm;
-  $('phList').innerHTML=photos.map(p=>'<div class="th" data-id="'+esc(p.id)+'"><img src="'+p.data+'" alt="">'+(canAdd?'<button type="button" class="rm" data-rm="'+esc(p.id)+'" aria-label="مسح الصورة">×</button>':'')+'</div>').join('');
-  $('phAdd').hidden=!canAdd||photos.length>=MAX_PHOTOS;
-  $('phNote').textContent = !editingId ? 'احفظ البيانات الأول وبعدين ضيف الصور.' : (photos.length>=MAX_PHOTOS ? 'وصلت للحد الأقصى ('+MAX_PHOTOS+' صور).' : (!photos.length && !canAdd ? 'مفيش صور.' : ''));
+  $('phGroups').innerHTML=SLOTS.map(([k,l,max])=>{
+    const ps=photos.filter(p=>slotOf(p)===k);
+    return '<div class="phg"><div class="phh"><span>'+l+'</span><small>'+ps.length+'/'+max+'</small></div><div class="ph">'
+      +ps.map(p=>'<div class="th" data-id="'+esc(p.id)+'"><img src="'+p.data+'" alt="'+esc(l)+'">'+(canAdd?'<button type="button" class="rm" data-rm="'+esc(p.id)+'" aria-label="مسح الصورة">×</button>':'')+'</div>').join('')
+      +(canAdd&&ps.length<max?'<button type="button" class="phadd" data-slot="'+k+'"'+(busyPh?' disabled':'')+'>+ إضافة</button>':'')
+      +'</div></div>';
+  }).join('');
+  $('phNote').textContent = !editingId ? 'احفظ البيانات الأول وبعدين ضيف الصور.' : '';
 }
 async function loadPhotos(id){
   photos=[]; renderPhotos();
   try{
     const s=await getDocs(collection(db,'trucks',id,'photos'));
     if(editingId!==id) return;
-    photos=s.docs.map(d=>({id:d.id,data:d.data().data,at:d.data().at||0})).sort((a,b)=>a.at-b.at); renderPhotos();
+    photos=s.docs.map(d=>({id:d.id,data:d.data().data,at:d.data().at||0,slot:d.data().slot||''})).sort((a,b)=>a.at-b.at); renderPhotos();
   }catch(e){ $('phNote').textContent='ما قدرتش أحمّل الصور.'; }
 }
-$('phAdd').addEventListener('click',()=>$('phFile').click());
-$('phFile').addEventListener('change',async function(){
-  const f=this.files&&this.files[0]; this.value=''; if(!f||!editingId||photos.length>=MAX_PHOTOS) return;
-  const id=editingId; $('phAdd').disabled=true; $('phNote').textContent='بنجهّز الصورة…';
-  try{
-    const data=await shrink(f);
-    const ref=await addDoc(collection(db,'trucks',id,'photos'),{data,at:Date.now(),by:me});
-    photos.push({id:ref.id,data,at:Date.now()});
-    await updateDoc(doc(db,'trucks',id),{photoCount:photos.length});
-    const r=rows.find(x=>x.id===id); if(r) writeLog(r,'أضاف صورة');
-  }catch(ex){ toast(ex&&(ex.message==='big'||ex.message==='img') ? 'الصورة كبيرة أو مش مدعومة.' : 'ما اترفعتش الصورة.'); }
-  $('phAdd').disabled=false; renderPhotos();
-});
-$('phList').addEventListener('click',async e=>{
+$('phGroups').addEventListener('click',async e=>{
+  const add=e.target.closest('[data-slot]');
+  if(add){ if(busyPh) return; curSlot=add.getAttribute('data-slot'); $('phFile').click(); return; }
   const rm=e.target.closest('[data-rm]');
   if(rm){
     e.stopPropagation(); const pid=rm.getAttribute('data-rm'), id=editingId; if(!id) return;
@@ -988,6 +1000,20 @@ $('phList').addEventListener('click',async e=>{
   }
   const t=e.target.closest('.th'); if(!t) return;
   const p=photos.find(x=>x.id===t.getAttribute('data-id')); if(p){ $('lboxImg').src=p.data; $('lbox').hidden=false; }
+});
+$('phFile').addEventListener('change',async function(){
+  const f=this.files&&this.files[0]; this.value=''; if(!f||!editingId) return;
+  const sl=SLOTS.find(s=>s[0]===curSlot)||SLOTS[3];
+  if(photos.filter(p=>slotOf(p)===sl[0]).length>=sl[2]){ toast('وصلت للحد الأقصى في «'+sl[1]+'».'); return; }
+  const id=editingId; busyPh=true; renderPhotos(); $('phNote').textContent='بنجهّز الصورة…';
+  try{
+    const data=await shrink(f,sl[3]);
+    const at=Date.now(), ref=await addDoc(collection(db,'trucks',id,'photos'),{data,at,by:me,slot:sl[0]});
+    photos.push({id:ref.id,data,at,slot:sl[0]});
+    await updateDoc(doc(db,'trucks',id),{photoCount:photos.length});
+    const r=rows.find(x=>x.id===id); if(r) writeLog(r,'أضاف '+sl[1]);
+  }catch(ex){ toast(ex&&(ex.message==='big'||ex.message==='img') ? 'الصورة كبيرة أو مش مدعومة.' : 'ما اترفعتش الصورة.'); }
+  busyPh=false; renderPhotos();
 });
 $('lbox').addEventListener('click',()=>{ $('lbox').hidden=true; });
 
@@ -1167,6 +1193,10 @@ document.addEventListener('keydown',e=>{
   else if(!$('modal').hidden) closeModal();
 });
 
+
+</script>
+<script>
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){} }); }
 </script>
 </body>
 </html>
