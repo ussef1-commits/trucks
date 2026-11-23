@@ -19,7 +19,7 @@ const VLABEL = { car: 'عربية', reefer: 'براد' };
 const vtypeOf = r => r && r.vehicleType === 'reefer' ? 'reefer' : 'car';
 function calcRow(r) {
   let cost = 0, any = false;
-  ['buyPrice', 'extraPrice', 'shipPrice'].forEach(p => { if (has(r[p])) { any = true; cost += Number(r[p]); } });
+  ['buyPrice', 'extraPrice', 'shipPrice', 'transportPrice'].forEach(p => { if (has(r[p])) { any = true; cost += Number(r[p]); } });
   const sale = has(r.salePrice) ? Number(r.salePrice) : null;
   return { any, cost: any ? cost : null, profit: sale != null ? sale - cost : null };
 }
@@ -48,6 +48,7 @@ async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
     { h: 'سعر الشراء (€)', w: 16, v: num('buyPrice'), a: 'center', fmt: EUR },
     { h: 'مصاريف إضافية (€)', w: 18, v: num('extraPrice'), a: 'center', fmt: EUR },
     { h: 'سعر الشحن (€)', w: 16, v: num('shipPrice'), a: 'center', fmt: EUR },
+    { h: 'مصاريف النقل (€)', w: 17, v: num('transportPrice'), a: 'center', fmt: EUR },
     { h: 'إجمالي التكلفة (€)', w: 19, v: (r, i, c) => c.any ? c.cost : null, a: 'center', fmt: EUR, key: 'cost' },
     { h: 'سعر البيع (€)', w: 16, v: num('salePrice'), a: 'center', fmt: EUR },
     { h: 'الربح (€)', w: 16, v: (r, i, c) => c.profit, a: 'center', fmt: EUR, key: 'profit' },
