@@ -127,9 +127,10 @@ td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle;w
 tbody tr{cursor:pointer}
 tbody tr:hover td{background:var(--surface-2)}
 tbody tr:last-child td{border-bottom:0}
-th.c-chassis,td.c-chassis{position:sticky;inset-inline-start:0;z-index:1;box-shadow:inset -1px 0 0 var(--line)}
+th.c-chassis,td.c-chassis{position:-webkit-sticky;position:sticky;right:0;inset-inline-start:0;z-index:1;box-shadow:inset -1px 0 0 var(--line);-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
 th.c-chassis{background:var(--surface-2)}
-td.c-chassis{font-family:var(--font-mono);font-weight:500;font-size:14px}
+td.c-chassis{font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--ink)}
+.scroll{-webkit-overflow-scrolling:touch}
 td.c-n{font-family:var(--font-mono);color:var(--muted);width:56px}
 td.wrapc{white-space:normal;min-width:200px;max-width:280px}
 .sw-dot{display:inline-block;width:13px;height:13px;border-radius:50%;border:1px solid rgba(128,128,128,.55);vertical-align:-1px;margin-inline-end:8px}
@@ -343,7 +344,7 @@ fieldset .fs input[type=date]{width:100%}
       <div class="flts" id="flts"></div>
       <div class="sheet card">
         <div class="scroll">
-          <table id="tbl" style="min-width:3450px">
+          <table id="tbl" style="min-width:3600px">
             <thead>
               <tr>
                 <th>م</th>
@@ -359,6 +360,7 @@ fieldset .fs input[type=date]{width:100%}
                 <th class="srt" data-sort="buy">سعر الشراء</th>
                 <th class="srt" data-sort="extra">مصاريف إضافية</th>
                 <th class="srt" data-sort="ship">سعر الشحن</th>
+                <th class="srt" data-sort="transport">مصاريف النقل</th>
                 <th class="srt" data-sort="cost">إجمالي التكلفة</th>
                 <th class="srt" data-sort="sale">سعر البيع</th>
                 <th class="srt" data-sort="profit">الربح</th>
@@ -438,7 +440,7 @@ fieldset .fs input[type=date]{width:100%}
             <legend>التكلفة والبيع (يورو €)</legend>
             <div class="fs" id="moneyBox"></div>
             <div class="calc">
-              <div><span>إجمالي التكلفة (شراء + مصاريف + شحن)</span><b id="calcCost">—</b></div>
+              <div><span>إجمالي التكلفة (شراء + مصاريف + شحن + نقل)</span><b id="calcCost">—</b></div>
               <div><span>الربح</span><b id="calcProfit">—</b></div>
             </div>
           </fieldset>
@@ -536,7 +538,7 @@ const VLABEL = { car: 'عربية', reefer: 'براد' };
 const vtypeOf = r => r && r.vehicleType === 'reefer' ? 'reefer' : 'car';
 function calcRow(r) {
   let cost = 0, any = false;
-  ['buyPrice', 'extraPrice', 'shipPrice'].forEach(p => { if (has(r[p])) { any = true; cost += Number(r[p]); } });
+  ['buyPrice', 'extraPrice', 'shipPrice', 'transportPrice'].forEach(p => { if (has(r[p])) { any = true; cost += Number(r[p]); } });
   const sale = has(r.salePrice) ? Number(r.salePrice) : null;
   return { any, cost: any ? cost : null, profit: sale != null ? sale - cost : null };
 }
@@ -565,6 +567,7 @@ async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
     { h: 'سعر الشراء (€)', w: 16, v: num('buyPrice'), a: 'center', fmt: EUR },
     { h: 'مصاريف إضافية (€)', w: 18, v: num('extraPrice'), a: 'center', fmt: EUR },
     { h: 'سعر الشحن (€)', w: 16, v: num('shipPrice'), a: 'center', fmt: EUR },
+    { h: 'مصاريف النقل (€)', w: 17, v: num('transportPrice'), a: 'center', fmt: EUR },
     { h: 'إجمالي التكلفة (€)', w: 19, v: (r, i, c) => c.any ? c.cost : null, a: 'center', fmt: EUR, key: 'cost' },
     { h: 'سعر البيع (€)', w: 16, v: num('salePrice'), a: 'center', fmt: EUR },
     { h: 'الربح (€)', w: 16, v: (r, i, c) => c.profit, a: 'center', fmt: EUR, key: 'profit' },
@@ -638,7 +641,7 @@ const initOf = k => String((USERS[k]&&USERS[k].name)||k||'?').charAt(0).toUpperC
 const fmtNum = nf;
 const PRESETS = { car:['مان','مرسيدس','فولفو'], reefer:['كرونا (Krone)','شميتز (Schmitz)','شيرو (Chereau)'] };
 const COLORS = [['أبيض','#f4f4f1'],['أحمر','#c43a2d'],['أزرق','#2b5fa3'],['أسود','#23282d']];
-const MONEY = [['buy','سعر الشراء'],['extra','مصاريف إضافية'],['ship','سعر الشحن'],['sale','سعر البيع']];
+const MONEY = [['buy','سعر الشراء'],['extra','مصاريف إضافية'],['ship','سعر الشحن'],['transport','مصاريف النقل'],['sale','سعر البيع']];
 const DATES = [['purchase','تاريخ الشراء'],['sale','تاريخ البيع'],['transport','تاريخ النقل'],['ship','تاريخ الشحن'],['arrival','تاريخ الوصول']];
 
 const money = n => has(n) ? '<bdi>'+esc(fmtNum(n))+'</bdi> €' : DASH;
@@ -765,7 +768,7 @@ $('flts').addEventListener('click',e=>{
 const mnum = p => r => has(r[p]) ? Number(r[p]) : null;
 const SORTERS = {
   chassis:r=>norm(r.chassis)||null, vtype:r=>vtypeOf(r), make:r=>norm(r.make)||null, buyer:r=>norm(r.buyer)||null, seller:r=>norm(r.sellerName)||null, by:r=>nameOf(r.createdBy),
-  buy:mnum('buyPrice'), extra:mnum('extraPrice'), ship:mnum('shipPrice'), sale:mnum('salePrice'),
+  buy:mnum('buyPrice'), extra:mnum('extraPrice'), ship:mnum('shipPrice'), transport:mnum('transportPrice'), sale:mnum('salePrice'),
   cost:r=>calcRow(r).cost, profit:r=>calcRow(r).profit, createdAt:r=>r.createdAt||0,
   purchaseDate:r=>r.purchaseDate||null, saleDate:r=>r.saleDate||null, transportDate:r=>r.transportDate||null, shipDate:r=>r.shipDate||null, arrivalDate:r=>r.arrivalDate||null
 };
@@ -812,6 +815,7 @@ function renderTable(){
       +'<td class="mono">'+money(r.buyPrice)+'</td>'
       +'<td class="mono">'+money(r.extraPrice)+'</td>'
       +'<td class="mono">'+money(r.shipPrice)+'</td>'
+      +'<td class="mono">'+money(r.transportPrice)+'</td>'
       +'<td class="mono">'+(c.any?'<span class="pf">'+money(c.cost)+'</span>':DASH)+'</td>'
       +'<td class="mono">'+money(r.salePrice)+'</td>'
       +'<td>'+pfCell(c.profit)+'</td>'
@@ -825,6 +829,7 @@ function renderTable(){
       +'<td class="mono">'+esc(dstr(r.createdAt))+'</td>'
       +'<td>'+actions(r)+'</td></tr>';
   }).join('');
+  requestAnimationFrame(()=>{ const cs=document.querySelectorAll('td.c-chassis'); cs.forEach(c=>{ c.style.willChange='transform'; }); });
   const em=$('empty');
   if(!loaded){ em.hidden=false; em.innerHTML='<strong>جاري تحميل البيانات</strong>ثواني وتظهر البيانات.'; }
   else if(!rows.length){ em.hidden=false; em.innerHTML='<strong>لسه مفيش مركبات متسجلة</strong>اضغط «إضافة عربية» وسجّل أول واحدة.'; }
@@ -1032,7 +1037,7 @@ $('lbox').addEventListener('click',()=>{ $('lbox').hidden=true; });
 
 /* ---------- add / edit modal ---------- */
 const LABEL={vehicleType:'المركبة',chassis:'الشاسيه',make:'النوع',description:'الوصف',color:'اللون',buyer:'المشتري',buyerPhone:'رقم المشتري',sellerName:'الشركة البائعة',sellerPhone:'هاتف الشركة',
-  buyPrice:'سعر الشراء',extraPrice:'مصاريف إضافية',shipPrice:'سعر الشحن',salePrice:'سعر البيع',
+  buyPrice:'سعر الشراء',extraPrice:'مصاريف إضافية',shipPrice:'سعر الشحن',transportPrice:'مصاريف النقل',salePrice:'سعر البيع',
   purchaseDate:'تاريخ الشراء',saleDate:'تاريخ البيع',transportDate:'تاريخ النقل',shipDate:'تاريخ الشحن',arrivalDate:'تاريخ الوصول',
   transportDone:'النقل',acidDone:'الأسيد',shipNo:'رقم الشحن',shipDone:'تم الشحن',notes:'الملاحظات'};
 
