@@ -191,6 +191,7 @@ button.chip:hover{filter:brightness(.96)}
 fieldset{border:1px solid var(--line);border-radius:12px;padding:14px;margin:0;min-width:0}
 legend{padding-inline:8px;font-weight:700;font-size:14px;color:var(--muted)}
 .fs{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end}
+#moneyBox{grid-template-columns:1fr}
 .fs .full{grid-column:1/-1}
 .meta{color:var(--muted);font-size:13px;margin:14px 0 0}
 .mf{display:flex;align-items:center;gap:10px;margin-top:20px;flex-wrap:wrap}
@@ -383,9 +384,9 @@ fieldset .fs input[type=date]{width:100%}
                 <th class="srt" data-sort="seller">الشركة البائعة</th>
                 <th>هاتف الشركة</th>
                 <th class="srt" data-sort="buy">سعر الشراء</th>
-                <th class="srt" data-sort="extra">مصاريف إضافية</th>
-                <th class="srt" data-sort="ship">سعر الشحن</th>
                 <th class="srt" data-sort="transport">مصاريف النقل</th>
+                <th class="srt" data-sort="ship">سعر الشحن</th>
+                <th class="srt" data-sort="extra">مصاريف إضافية</th>
                 <th class="srt" data-sort="cost">إجمالي التكلفة</th>
                 <th class="srt" data-sort="sale">سعر البيع</th>
                 <th class="srt" data-sort="profit">الربح</th>
@@ -603,9 +604,9 @@ async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
     { h: 'الشركة البائعة', w: 24, v: r => r.sellerName || '', a: 'right' },
     { h: 'هاتف الشركة', w: 18, v: r => r.sellerPhone || '', a: 'center', text: true },
     { h: 'سعر الشراء (€)', w: 16, v: num('buyPrice'), a: 'center', fmt: EUR },
-    { h: 'مصاريف إضافية (€)', w: 18, v: num('extraPrice'), a: 'center', fmt: EUR },
-    { h: 'سعر الشحن (€)', w: 16, v: num('shipPrice'), a: 'center', fmt: EUR },
     { h: 'مصاريف النقل (€)', w: 17, v: num('transportPrice'), a: 'center', fmt: EUR },
+    { h: 'سعر الشحن (€)', w: 16, v: num('shipPrice'), a: 'center', fmt: EUR },
+    { h: 'مصاريف إضافية (€)', w: 18, v: num('extraPrice'), a: 'center', fmt: EUR },
     { h: 'إجمالي التكلفة (€)', w: 19, v: (r, i, c) => c.any ? c.cost : null, a: 'center', fmt: EUR, key: 'cost' },
     { h: 'سعر البيع (€)', w: 16, v: num('salePrice'), a: 'center', fmt: EUR },
     { h: 'الربح (€)', w: 16, v: (r, i, c) => c.profit, a: 'center', fmt: EUR, key: 'profit' },
@@ -679,7 +680,7 @@ const initOf = k => String((USERS[k]&&USERS[k].name)||k||'?').charAt(0).toUpperC
 const fmtNum = nf;
 const PRESETS = { car:['مان','مرسيدس','فولفو'], reefer:['كرونا (Krone)','شميتز (Schmitz)','شيرو (Chereau)'] };
 const COLORS = [['أبيض','#f4f4f1'],['أحمر','#c43a2d'],['أزرق','#2b5fa3'],['أسود','#23282d']];
-const MONEY = [['buy','سعر الشراء'],['extra','مصاريف إضافية'],['ship','سعر الشحن'],['transport','مصاريف النقل'],['sale','سعر البيع']];
+const MONEY = [['buy','سعر الشراء'],['transport','مصاريف النقل'],['ship','سعر الشحن'],['extra','مصاريف إضافية'],['sale','سعر البيع']];
 const DATES = [['purchase','تاريخ الشراء'],['sale','تاريخ البيع'],['transport','تاريخ النقل'],['ship','تاريخ الشحن'],['arrival','تاريخ الوصول']];
 
 const money = n => has(n) ? '<bdi>'+esc(fmtNum(n))+'</bdi> €' : DASH;
@@ -867,9 +868,9 @@ function renderTable(){
       +'<td>'+(r.sellerName?esc(r.sellerName):DASH)+'</td>'
       +'<td class="mono">'+(r.sellerPhone?'<bdi>'+esc(r.sellerPhone)+'</bdi>':DASH)+'</td>'
       +'<td class="mono">'+money(r.buyPrice)+'</td>'
-      +'<td class="mono">'+money(r.extraPrice)+'</td>'
-      +'<td class="mono">'+money(r.shipPrice)+'</td>'
       +'<td class="mono">'+money(r.transportPrice)+'</td>'
+      +'<td class="mono">'+money(r.shipPrice)+'</td>'
+      +'<td class="mono">'+money(r.extraPrice)+'</td>'
       +'<td class="mono">'+(c.any?'<span class="pf">'+money(c.cost)+'</span>':DASH)+'</td>'
       +'<td class="mono">'+money(r.salePrice)+'</td>'
       +'<td>'+pfCell(c.profit)+'</td>'
@@ -1094,7 +1095,7 @@ $('lbox').addEventListener('click',()=>{ $('lbox').hidden=true; });
 
 /* ---------- add / edit modal ---------- */
 const LABEL={vehicleType:'المركبة',chassis:'الشاسيه',make:'النوع',description:'الوصف',color:'اللون',buyer:'المشتري',buyerPhone:'رقم المشتري',sellerName:'الشركة البائعة',sellerPhone:'هاتف الشركة',
-  buyPrice:'سعر الشراء',extraPrice:'مصاريف إضافية',shipPrice:'سعر الشحن',transportPrice:'مصاريف النقل',salePrice:'سعر البيع',
+  buyPrice:'سعر الشراء',transportPrice:'مصاريف النقل',shipPrice:'سعر الشحن',extraPrice:'مصاريف إضافية',salePrice:'سعر البيع',
   purchaseDate:'تاريخ الشراء',saleDate:'تاريخ البيع',transportDate:'تاريخ النقل',shipDate:'تاريخ الشحن',arrivalDate:'تاريخ الوصول',
   transportDone:'النقل',acidDone:'الأسيد',shipNo:'رقم الشحن',shipDone:'تم الشحن',notes:'الملاحظات'};
 
@@ -1271,7 +1272,11 @@ document.addEventListener('keydown',e=>{
 
 </script>
 <script>
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>{ try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){} }); }
+if('serviceWorker' in navigator){
+  const had=!!navigator.serviceWorker.controller; let rl=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(had&&!rl){ rl=true; location.reload(); } });
+  window.addEventListener('load',()=>{ try{ navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).catch(()=>{}); }catch(e){} });
+}
 </script>
 </body>
 </html>
