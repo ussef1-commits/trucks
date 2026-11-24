@@ -119,18 +119,17 @@ textarea{resize:vertical;min-height:76px}
 .search input{padding-inline-start:40px}
 
 /* sheet */
-.sheet{overflow:hidden;margin-bottom:110px}
-.scroll{overflow-x:auto}
+.sheet{margin-bottom:110px}
+.scroll{overflow-x:auto;border-radius:11px}
 table{border-collapse:separate;border-spacing:0;width:100%;min-width:1420px;font-size:14.5px}
 th{text-align:start;font-weight:500;font-size:12.5px;letter-spacing:.03em;color:var(--muted);background:var(--surface-2);padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
 td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap;background:var(--surface)}
 tbody tr{cursor:pointer}
 tbody tr:hover td{background:var(--surface-2)}
 tbody tr:last-child td{border-bottom:0}
-th.c-chassis,td.c-chassis{position:-webkit-sticky;position:sticky;right:0;inset-inline-start:0;z-index:1;box-shadow:inset -1px 0 0 var(--line);-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-backface-visibility:hidden;backface-visibility:hidden}
+th.c-chassis,td.c-chassis{position:-webkit-sticky;position:sticky;right:0;z-index:1;box-shadow:inset -1px 0 0 var(--line)}
 th.c-chassis{background:var(--surface-2)}
 td.c-chassis{font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--ink)}
-.scroll{-webkit-overflow-scrolling:touch}
 td.c-n{font-family:var(--font-mono);color:var(--muted);width:56px}
 td.wrapc{white-space:normal;min-width:200px;max-width:280px}
 .sw-dot{display:inline-block;width:13px;height:13px;border-radius:50%;border:1px solid rgba(128,128,128,.55);vertical-align:-1px;margin-inline-end:8px}
@@ -829,7 +828,6 @@ function renderTable(){
       +'<td class="mono">'+esc(dstr(r.createdAt))+'</td>'
       +'<td>'+actions(r)+'</td></tr>';
   }).join('');
-  requestAnimationFrame(()=>{ const cs=document.querySelectorAll('td.c-chassis'); cs.forEach(c=>{ c.style.willChange='transform'; }); });
   const em=$('empty');
   if(!loaded){ em.hidden=false; em.innerHTML='<strong>جاري تحميل البيانات</strong>ثواني وتظهر البيانات.'; }
   else if(!rows.length){ em.hidden=false; em.innerHTML='<strong>لسه مفيش مركبات متسجلة</strong>اضغط «إضافة عربية» وسجّل أول واحدة.'; }
