@@ -129,6 +129,8 @@ tbody tr:hover td{background:var(--surface-2)}
 tbody tr:last-child td{border-bottom:0}
 th.c-chassis,td.c-chassis{position:-webkit-sticky;position:sticky;right:0;z-index:1;box-shadow:inset -1px 0 0 var(--line)}
 th.c-chassis{background:var(--surface-2)}
+/* آيفون/آيباد: Safari بيفشل في رسم العمود الثابت بعد التمرير، فبنلغي التثبيت هناك بس */
+@supports (-webkit-touch-callout:none){ th.c-chassis,td.c-chassis{position:static;box-shadow:none} }
 td.c-chassis{font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--ink)}
 td.c-n{font-family:var(--font-mono);color:var(--muted);width:56px}
 td.wrapc{white-space:normal;min-width:200px;max-width:280px}
@@ -273,6 +275,30 @@ fieldset .fs input[type=date]{width:100%}
 .phh small{color:var(--muted);font-weight:400}
 .ph .phadd{width:96px;height:72px;border-radius:9px;border:1.5px dashed var(--line);background:transparent;color:var(--muted);cursor:pointer;font:inherit;font-size:13.5px}
 .ph .phadd:disabled{opacity:.5;cursor:wait}
+.cardsbox{display:none}
+@media (max-width:760px){
+  .scroll{display:none}
+  .cardsbox{display:block;padding:12px}
+  .cardbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13.5px;color:var(--muted)}
+  .cardbar select{flex:1;min-width:0;font:inherit;padding:9px 10px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+}
+.vcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:11px;box-shadow:var(--shadow);cursor:pointer}
+.vcard .vtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.vcard .vch{font-family:var(--font-mono);font-weight:600;font-size:15px;letter-spacing:.02em;direction:ltr;overflow-wrap:anywhere;min-width:0}
+.vcard .vn{color:var(--muted);font-family:var(--font-mono);font-size:12px;margin-inline-end:8px}
+.vcard .vsub{color:var(--muted);font-size:14px;margin-top:6px;line-height:1.6}
+.vcard .vsub b{color:var(--ink);font-weight:500}
+.vcard .vdesc{color:var(--muted);font-size:13px;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vcard .vmoney{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}
+.vcard .vmoney div{background:var(--surface-2);border-radius:10px;padding:7px 9px;min-width:0}
+.vcard .vmoney small{display:block;color:var(--muted);font-size:11.5px}
+.vcard .vmoney b{font-family:var(--font-mono);font-size:13.5px;direction:ltr;display:inline-block;font-weight:500}
+.vcard .vchips{display:flex;gap:8px;margin-top:11px}
+.vcard .vchips .chip{flex:1;display:block;padding:8px 4px;text-align:center;border-radius:10px}
+.vcard .vchips .chip::before{display:none}
+.vcard .vchips .chip.no{background:var(--surface-2)}
+.vcard .vchips .chip small{display:block;font-size:11px;opacity:.85;font-weight:400}
+.vcard .vacts{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -377,6 +403,19 @@ fieldset .fs input[type=date]{width:100%}
             </thead>
             <tbody id="tbody"></tbody>
           </table>
+        </div>
+        <div class="cardsbox" id="cardsbox">
+          <div class="cardbar"><label for="sortSel">ترتيب:</label>
+            <select id="sortSel">
+              <option value="createdAt:desc">الأحدث تسجيلاً</option>
+              <option value="createdAt:asc">الأقدم تسجيلاً</option>
+              <option value="chassis:asc">رقم الشاسيه</option>
+              <option value="profit:desc">الأعلى ربحاً</option>
+              <option value="saleDate:desc">تاريخ البيع</option>
+              <option value="arrivalDate:desc">تاريخ الوصول</option>
+            </select>
+          </div>
+          <div id="cards"></div>
         </div>
         <div class="empty" id="empty" hidden></div>
       </div>
@@ -781,6 +820,22 @@ function chip(r,f){
   return '<button type="button" class="'+cls+(pending[r.id]?' busy':'')+'" data-toggle="'+f+'" data-id="'+esc(r.id)+'" aria-pressed="'+on+'">'+(on?'تم':'لا')+'</button>';
 }
 function userCell(k){ return (!k||!USERS[k]) ? DASH : '<span class="by"><span class="avatar">'+esc(initOf(k))+'</span>'+esc(USERS[k].name)+'</span>'; }
+function vchip(r,f,label){
+  const on=!!r[f];
+  return '<button type="button" class="chip '+(on?'ok':'no')+(pending[r.id]?' busy':'')+'" data-toggle="'+f+'" data-id="'+esc(r.id)+'" aria-pressed="'+on+'"><small>'+label+'</small>'+(on?'تم':'لا')+'</button>';
+}
+function cardHtml(r,rank){
+  const c=calcRow(r), vt=vtypeOf(r), i=esc(r.id);
+  const ps=c.profit==null?'—':(c.profit>0?'+':'')+fmtNum(c.profit)+' €';
+  return '<div class="vcard" data-id="'+i+'"><div class="vtop"><div class="vch"><span class="vn">#'+rank+'</span>'+(r.chassis?'<bdi>'+esc(r.chassis)+'</bdi>':DASH)+'</div><span class="tag'+(vt==='reefer'?' rf':'')+'">'+VLABEL[vt]+'</span></div>'
+    +'<div class="vsub">'+(r.make?esc(r.make):'بدون نوع')+' • المشتري: <b>'+(r.buyer?esc(r.buyer):'—')+'</b></div>'
+    +(r.description?'<div class="vdesc">'+esc(r.description)+'</div>':'')
+    +'<div class="vmoney"><div><small>سعر البيع</small><b>'+(has(r.salePrice)?fmtNum(r.salePrice)+' €':'—')+'</b></div>'
+    +'<div><small>الربح</small><b class="'+(c.profit==null?'':(c.profit>=0?'pos':'neg'))+'">'+ps+'</b></div>'
+    +'<div><small>التكلفة</small><b>'+(c.any?fmtNum(c.cost)+' €':'—')+'</b></div></div>'
+    +'<div class="vchips">'+vchip(r,'transportDone','النقل')+vchip(r,'acidDone','الأسيد')+vchip(r,'shipDone','الشحن')+'</div>'
+    +'<div class="vacts"><button type="button" class="mini" data-act="edit" data-id="'+i+'">تعديل</button><button type="button" class="mini del" data-act="del" data-id="'+i+'">مسح</button></div></div>';
+}
 function actions(r){
   const i=esc(r.id);
   return '<span class="acts"><button type="button" class="mini" data-act="edit" data-id="'+i+'">تعديل</button><button type="button" class="mini del" data-act="del" data-id="'+i+'">مسح</button></span>';
@@ -828,6 +883,8 @@ function renderTable(){
       +'<td class="mono">'+esc(dstr(r.createdAt))+'</td>'
       +'<td>'+actions(r)+'</td></tr>';
   }).join('');
+  $('cards').innerHTML=list.map(r=>cardHtml(r,rank[r.id])).join('');
+  $('sortSel').value=sortKey+':'+sortDir;
   const em=$('empty');
   if(!loaded){ em.hidden=false; em.innerHTML='<strong>جاري تحميل البيانات</strong>ثواني وتظهر البيانات.'; }
   else if(!rows.length){ em.hidden=false; em.innerHTML='<strong>لسه مفيش مركبات متسجلة</strong>اضغط «إضافة عربية» وسجّل أول واحدة.'; }
@@ -843,7 +900,7 @@ document.querySelector('#tbl thead').addEventListener('click',e=>{
 });
 
 /* ---------- row clicks ---------- */
-$('tbody').addEventListener('click', async e=>{
+const rowClick = async e=>{
   const t=e.target.closest('[data-toggle]');
   if(t){
     e.stopPropagation();
@@ -864,8 +921,10 @@ $('tbody').addEventListener('click', async e=>{
     else askMath({title:'تأكيد المسح',note:'هتتمسح '+VLABEL[vtypeOf(r)]+' '+(r.chassis||'')+' نهائياً.',btn:'مسح',danger:true},()=>doDelete(id));
     return;
   }
-  const tr=e.target.closest('tr[data-id]'); if(tr) openModal(tr.getAttribute('data-id'),false);
-});
+  const tr=e.target.closest('tr[data-id],.vcard[data-id]'); if(tr) openModal(tr.getAttribute('data-id'),false);
+};
+$('tbody').addEventListener('click',rowClick); $('cards').addEventListener('click',rowClick);
+$('sortSel').addEventListener('change',function(){ const p=this.value.split(':'); sortKey=p[0]; sortDir=p[1]; renderTable(); });
 
 /* ---------- autocomplete ---------- */
 function attachAC(input, field, only){
