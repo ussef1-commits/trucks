@@ -60,6 +60,7 @@ async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
     { h: 'النقل', w: 11, v: r => r.transportDone ? 'تم' : 'لا', a: 'center', status: true },
     { h: 'الأسيد', w: 11, v: r => r.acidDone ? 'تم' : 'لا', a: 'center', status: true },
     { h: 'رقم الشحن', w: 18, v: r => r.shipNo || '', a: 'center' },
+    { h: 'اسم الشاحن', w: 22, v: r => r.shipperName || '', a: 'right' },
     { h: 'تم الشحن', w: 13, v: r => r.shipDone ? 'تم' : 'لا', a: 'center', status: true },
     { h: 'ملاحظات', w: 34, v: r => r.notes || '', a: 'right' },
     { h: 'سجّلها', w: 14, v: r => nameOf(r.createdBy), a: 'center' },
