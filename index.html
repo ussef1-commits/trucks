@@ -149,7 +149,7 @@ button.chip:hover{filter:brightness(.96)}
 .empty strong{display:block;color:var(--ink);font:700 18px var(--font-display);margin-bottom:4px}
 
 /* floating export key */
-.fab{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-end:calc(16px + max(env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)));
+.fab{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom,0px));inset-inline-end:calc(16px + max(env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)));
   width:58px;height:58px;border-radius:50%;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;cursor:pointer;
   box-shadow:0 6px 20px rgba(0,0,0,.28);z-index:20;outline:3px solid var(--signal);outline-offset:-3px}
 .fab:hover{filter:brightness(1.1)}
@@ -198,7 +198,7 @@ legend{padding-inline:8px;font-weight:700;font-size:14px;color:var(--muted)}
 .sp{flex:1}
 .q{font:500 34px/1.3 var(--font-mono);text-align:center;direction:ltr;margin:12px 0 16px;letter-spacing:.04em}
 
-.toast{position:fixed;inset-inline:0;bottom:calc(88px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:max-content;max-width:calc(100% - 32px);z-index:60;
+.toast{position:fixed;inset-inline:0;bottom:calc(140px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:max-content;max-width:calc(100% - 32px);z-index:60;
   background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14.5px;box-shadow:var(--shadow)}
 
 @media (max-width:700px){
@@ -260,7 +260,7 @@ th.srt.desc::after{content:" ▼";font-size:10px}
 .md.wide{max-width:720px}
 .ok-note{color:var(--muted);font-size:13px;margin:6px 0 0}
 .setup{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:12px 14px;font-size:14px}
-.lgbtn{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-start:calc(16px + max(env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)));z-index:20;box-shadow:var(--shadow)}
+.lgbtn{position:fixed;bottom:calc(78px + env(safe-area-inset-bottom,0px));inset-inline-start:calc(16px + max(env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)));z-index:20;box-shadow:var(--shadow)}
 @media (max-width:700px){
   .stat:nth-child(3){border-inline-start:0}
   .stat:nth-child(5){grid-column:1/-1;border-inline-start:0;border-top:1px solid var(--line)}
@@ -300,6 +300,40 @@ fieldset .fs input[type=date]{width:100%}
 .vcard .vchips .chip.no{background:var(--surface-2)}
 .vcard .vchips .chip small{display:block;font-size:11px;opacity:.85;font-weight:400}
 .vcard .vacts{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
+.accsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:14px}
+.accsum div{background:var(--surface-2);border-radius:11px;padding:9px 12px;min-width:0}
+.accsum small{display:block;color:var(--muted);font-size:12px}
+.accsum b{font-family:var(--font-mono);font-size:16px;direction:ltr;display:inline-block;font-weight:600}
+.accbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.accbar .sp{flex:1}
+.accfilter{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:14px}
+.acard,.mv{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-top:9px}
+.acard{cursor:pointer}
+.acard .at,.mv .mvt{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.acard .at b,.mv .mvt b{font-weight:600}
+.acard .as,.mv .mvs{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.6}
+.mv .mvn{font-size:13.5px;margin-top:3px}
+.mv .mvb{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.bal{font-family:var(--font-mono);font-weight:600;font-size:14.5px;direction:ltr;display:inline-block;white-space:nowrap}
+.bal.up{color:var(--good)} .bal.dn{color:var(--bad)} .bal.z{color:var(--muted)}
+.acard .acts2{display:flex;gap:8px;margin-top:9px}
+.ctot{margin-top:12px;font-size:14px;color:var(--muted)}
+.tabbar{position:fixed;inset-inline:0;bottom:0;z-index:30;display:flex;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);box-shadow:0 -2px 10px rgba(0,0,0,.06)}
+.tabbar .tb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 6px 8px;background:transparent;border:0;color:var(--muted);font:500 12.5px var(--font-body);cursor:pointer}
+.tabbar .tb svg{width:25px;height:25px}
+.tabbar .tb[aria-current="page"]{color:var(--accent)}
+.tabbar .tb[aria-current="page"] span{font-weight:700}
+#accView{padding-bottom:120px}
+.accttl{margin:18px 0 12px;font:700 22px var(--font-display)}
+.fab,.lgbtn{display:none!important}
+.tabbar .tb span{white-space:nowrap}
+.advwrap{margin:-4px 0 14px}
+.adv{margin-top:10px;padding:14px}
+.advgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:12px}
+.advgrid label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--muted);min-width:0}
+.advgrid select,.advgrid input{font:inherit;font-size:14px;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0;width:100%}
+#advBtn small{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 7px;font-size:12px}
+#advBtn small:empty{display:none}
 </style>
 </head>
 <body>
@@ -353,6 +387,7 @@ fieldset .fs input[type=date]{width:100%}
 
   <main id="main" hidden>
     <div class="wrap">
+      <div id="vehView">
       <div id="banner" class="banner" hidden></div>
       <div class="stats" id="stats"></div>
       <div class="bar">
@@ -368,9 +403,39 @@ fieldset .fs input[type=date]{width:100%}
         </button>
       </div>
       <div class="flts" id="flts"></div>
+      <div class="advwrap">
+        <button type="button" class="flt" id="advBtn" aria-expanded="false">فلاتر متقدمة <small id="advCnt"></small></button>
+        <div class="adv card" id="adv" hidden>
+          <div class="advgrid">
+            <label>النوع<select id="af_make"></select></label>
+            <label>المشتري<select id="af_buyer"></select></label>
+            <label>الشركة البائعة<select id="af_seller"></select></label>
+            <label>الشاحن<select id="af_shipper"></select></label>
+            <label>الربح<select id="af_profit">
+              <option value="">الكل</option><option value="pos">رابحة</option><option value="neg">خاسرة</option><option value="none">لسه محسوبش (مفيش سعر بيع)</option></select></label>
+            <label>البيع<select id="af_sold">
+              <option value="">الكل</option><option value="yes">اتباعت</option><option value="no">لسه ما اتباعتش</option></select></label>
+            <label>الوصول<select id="af_arrived">
+              <option value="">الكل</option><option value="yes">وصلت</option><option value="no">لسه ما وصلتش</option></select></label>
+            <label>النقل<select id="af_tr">
+              <option value="">الكل</option><option value="yes">تم النقل</option><option value="no">لسه ما اتنقلتش</option></select></label>
+            <label>الأسيد<select id="af_ac">
+              <option value="">الكل</option><option value="yes">تم الأسيد</option><option value="no">الأسيد لسه</option></select></label>
+            <label>الشحن<select id="af_sh">
+              <option value="">الكل</option><option value="yes">اتشحنت</option><option value="no">لسه ما اتشحنتش</option></select></label>
+            <label>الصور<select id="af_photos">
+              <option value="">الكل</option><option value="yes">فيها صور</option><option value="no">من غير صور</option></select></label>
+            <label>التاريخ حسب<select id="af_dfield">
+              <option value="purchaseDate">تاريخ الشراء</option><option value="saleDate">تاريخ البيع</option><option value="transportDate">تاريخ النقل</option><option value="shipDate">تاريخ الشحن</option><option value="arrivalDate">تاريخ الوصول</option></select></label>
+            <label>من<input type="date" id="af_from" dir="ltr"></label>
+            <label>إلى<input type="date" id="af_to" dir="ltr"></label>
+          </div>
+          <button type="button" class="mini" id="advClear">مسح الفلاتر المتقدمة</button>
+        </div>
+      </div>
       <div class="sheet card">
         <div class="scroll">
-          <table id="tbl" style="min-width:3600px">
+          <table id="tbl" style="min-width:3800px">
             <thead>
               <tr>
                 <th>م</th>
@@ -395,7 +460,7 @@ fieldset .fs input[type=date]{width:100%}
                 <th class="srt" data-sort="transportDate">تاريخ النقل</th>
                 <th class="srt" data-sort="shipDate">تاريخ الشحن</th>
                 <th class="srt" data-sort="arrivalDate">تاريخ الوصول</th>
-                <th>النقل</th><th>الأسيد</th><th>رقم الشحن</th><th>تم الشحن</th>
+                <th>النقل</th><th>الأسيد</th><th>رقم الشحن</th><th class="srt" data-sort="shipper">اسم الشاحن</th><th>تم الشحن</th>
                 <th>ملاحظات</th>
                 <th class="srt" data-sort="by">سجّلها</th>
                 <th class="srt" data-sort="createdAt">تاريخ التسجيل</th>
@@ -420,8 +485,40 @@ fieldset .fs input[type=date]{width:100%}
         </div>
         <div class="empty" id="empty" hidden></div>
       </div>
+      </div>
+      <div id="accView" hidden>
+        <h2 class="accttl">الحسابات</h2>
+        <div class="accsum" id="accSum"></div>
+      <div class="accbar">
+        <div class="seg" id="accTabs" role="tablist"></div>
+        <span class="sp"></span>
+        <button class="btn primary" id="accAdd" type="button">+ حركة جديدة</button>
+      </div>
+      <input id="accQ" placeholder="ابحث باسم الشخص أو الملاحظة أو الشاسيه">
+      <div id="accFilter" class="accfilter" hidden></div>
+      <div id="accBody"></div>
+      </div>
     </div>
   </main>
+
+  <nav class="tabbar" id="tabbar" aria-label="التنقل" hidden>
+    <button type="button" class="tb" data-view="veh" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 7h11v9H2z"/><path d="M13 10h4l3 3v3h-7"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="16.5" cy="17.5" r="1.8"/></svg>
+      <span>العربيات</span>
+    </button>
+    <button type="button" class="tb" data-act="log">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+      <span>سجل التغييرات</span>
+    </button>
+    <button type="button" class="tb" data-view="acc">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H18a1 1 0 0 1 1 1v2"/><path d="M3 7.5V17a2 2 0 0 0 2 2h14a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1H5.5A2.5 2.5 0 0 1 3 7.5z"/><circle cx="16" cy="13.5" r="1.2"/></svg>
+      <span>الحسابات</span>
+    </button>
+    <button type="button" class="tb" data-act="export">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4 19h16"/></svg>
+      <span>تصدير</span>
+    </button>
+  </nav>
 
   <button class="btn lgbtn" id="logBtn" type="button" hidden>سجل التغييرات</button>
   <button class="fab" id="fab" type="button" hidden aria-label="تصدير الصفوف المعروضة إلى إكسل" title="تصدير إلى إكسل">
@@ -503,6 +600,10 @@ fieldset .fs input[type=date]{width:100%}
           <input id="fShipNo" class="mono" dir="ltr" placeholder="رقم الشحنة">
         </div>
         <div class="f">
+          <label for="fShipper">اسم الشاحن</label>
+          <input id="fShipper" placeholder="اسم الشاحن أو شركة الشحن">
+        </div>
+        <div class="f">
           <span class="lbl">تم الشحن</span>
           <button type="button" class="switch" id="fShipDone" role="switch" aria-checked="false"><span class="knob"></span><span class="st">لا</span></button>
         </div>
@@ -530,6 +631,54 @@ fieldset .fs input[type=date]{width:100%}
   </div>
 
   <!-- math gate -->
+  <div class="ov" id="entModal" hidden>
+    <div class="md small" role="dialog" aria-modal="true" aria-labelledby="entTitle">
+      <div class="mh">
+        <h2 id="entTitle">حركة جديدة</h2>
+        <button class="x" id="entClose" type="button" aria-label="إغلاق">×</button>
+      </div>
+      <form id="entForm" novalidate>
+        <div class="grid">
+          <div class="f full">
+            <span class="lbl">نوع الحركة</span>
+            <div class="seg" id="eType" role="radiogroup" aria-label="نوع الحركة"></div>
+          </div>
+          <div class="f full" id="ePartyBox">
+            <label for="eParty">الشخص / الجهة</label>
+            <input id="eParty" placeholder="اسم الشخص">
+          </div>
+          <div class="f full" id="eCatBox" hidden>
+            <label for="eCat">البند</label>
+            <input id="eCat" placeholder="مثال: إيجار، رواتب، كهرباء">
+          </div>
+          <div class="f">
+            <label for="eAmount">المبلغ (€)</label>
+            <input id="eAmount" class="mono" dir="ltr" inputmode="decimal" placeholder="0">
+          </div>
+          <div class="f">
+            <label for="eDate">التاريخ</label>
+            <input id="eDate" type="date" dir="ltr">
+          </div>
+          <div class="f full">
+            <label for="eVeh">مركبة مرتبطة (اختياري)</label>
+            <input id="eVeh" class="mono" dir="ltr" placeholder="رقم الشاسيه">
+          </div>
+          <div class="f full">
+            <label for="eNote">ملاحظات</label>
+            <textarea id="eNote" rows="2" placeholder="أي تفاصيل"></textarea>
+          </div>
+        </div>
+        <p class="err" id="eErr" hidden></p>
+        <div class="mf">
+          <button class="btn danger" id="eDel" type="button" hidden>مسح</button>
+          <span class="sp"></span>
+          <button class="btn" id="eCancel" type="button">إغلاق</button>
+          <button class="btn primary" id="eSave" type="submit">حفظ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="ov" id="mathModal" hidden>
     <form class="md small" id="mathForm" role="dialog" aria-modal="true" aria-labelledby="mathTitle" autocomplete="off">
       <div class="mh">
@@ -618,6 +767,7 @@ async function buildWorkbookBuffer(ExcelJS, list, nameOf) {
     { h: 'النقل', w: 11, v: r => r.transportDone ? 'تم' : 'لا', a: 'center', status: true },
     { h: 'الأسيد', w: 11, v: r => r.acidDone ? 'تم' : 'لا', a: 'center', status: true },
     { h: 'رقم الشحن', w: 18, v: r => r.shipNo || '', a: 'center' },
+    { h: 'اسم الشاحن', w: 22, v: r => r.shipperName || '', a: 'right' },
     { h: 'تم الشحن', w: 13, v: r => r.shipDone ? 'تم' : 'لا', a: 'center', status: true },
     { h: 'ملاحظات', w: 34, v: r => r.notes || '', a: 'right' },
     { h: 'سجّلها', w: 14, v: r => nameOf(r.createdBy), a: 'center' },
@@ -698,13 +848,14 @@ if(configured){
 }
 
 /* ---------- state ---------- */
-let me=null, rows=[], logs=[], unsubs=[];
+let me=null, rows=[], logs=[], ledger=[], unsubs=[];
 let flt='all', vf='all', sortKey='createdAt', sortDir='desc';
 let loaded=false, dbError='', slow=false;
 let editingId=null, readOnlyForm=false, pending={}, mathAns=0, mathAction=null, toastTimer=null;
 const form = {vtype:'car', transport:false, acid:false, ship:false};
 let viewRows = [];
 
+const unlock=()=>{ if(['modal','mathModal','logModal','entModal'].every(id=>$(id).hidden)) document.documentElement.style.overflow=''; };
 const toast = t => { const el=$('toast'); el.textContent=t; el.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>{el.hidden=true},3400); };
 const canEditRow = r => !!me;
 
@@ -741,13 +892,13 @@ if(auth){
 
 function enter(k){
   me=k;
-  $('login').hidden=true; $('main').hidden=false; $('fab').hidden=false; $('logBtn').hidden=false; $('who').hidden=false;
+  $('login').hidden=true; $('main').hidden=false; $('fab').hidden=false; $('tabbar').hidden=false; $('logBtn').hidden=false; $('who').hidden=false;
   $('whoInit').textContent=initOf(k); $('whoName').textContent=USERS[k].name; $('whoRole').textContent='صلاحيات كاملة';
   startData(); renderAll();
 }
 function leave(){
-  me=null; unsubs.forEach(u=>u()); unsubs=[]; rows=[]; logs=[]; loaded=false; dbError='';
-  closeModal(); closeMath(); $('logModal').hidden=true;
+  me=null; unsubs.forEach(u=>u()); unsubs=[]; rows=[]; logs=[]; ledger=[]; loaded=false; dbError='';
+  closeModal(); $('entModal').hidden=true; closeMath(); $('logModal').hidden=true; setView('veh'); $('tabbar').hidden=true;
   $('main').hidden=true; $('fab').hidden=true; $('logBtn').hidden=true; $('who').hidden=true; $('login').hidden=false;
 }
 
@@ -760,6 +911,7 @@ function startData(){
     rows=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));
     loaded=true; slow=false; dbError=''; clearTimeout(timer); renderAll();
   }, fail));
+  unsubs.push(onSnapshot(collection(db,'ledger'), s=>{ ledger=s.docs.map(d=>Object.assign({},d.data(),{id:d.id})); renderAcc(); }, ()=>{}));
   unsubs.push(onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(100)), s=>{
     logs=s.docs.map(d=>d.data()); renderLog();
   }, ()=>{}));
@@ -791,7 +943,39 @@ function renderStats(){
 const VF = [['all','كل المركبات'],['car','عربيات'],['reefer','برادات']];
 const FLTS = [['all','كل الحالات',()=>true],['noT','لسه ما اتنقلتش',r=>!r.transportDone],['noA','الأسيد لسه',r=>!r.acidDone],['noS','لسه ما اتشحنتش',r=>!r.shipDone]];
 const vfOk = r => vf==='all' || vtypeOf(r)===vf;
+const AF_IDS=['make','buyer','seller','shipper','profit','sold','arrived','tr','ac','sh','photos','dfield','from','to'];
+const afGet=()=>{ const o={}; AF_IDS.forEach(k=>{ o[k]=$('af_'+k).value; }); return o; };
+function afActive(a){ return ['make','buyer','seller','shipper','profit','sold','arrived','tr','ac','sh','photos'].filter(k=>a[k]).length + ((a.from||a.to)?1:0); }
+function afOk(r,a){
+  if(a.make && norm(r.make)!==norm(a.make)) return false;
+  if(a.buyer && norm(r.buyer)!==norm(a.buyer)) return false;
+  if(a.seller && norm(r.sellerName)!==norm(a.seller)) return false;
+  if(a.shipper && norm(r.shipperName)!==norm(a.shipper)) return false;
+  if(a.profit){ const p=calcRow(r).profit; if(a.profit==='pos'&&!(p!=null&&p>=0)) return false; if(a.profit==='neg'&&!(p!=null&&p<0)) return false; if(a.profit==='none'&&p!=null) return false; }
+  if(a.sold==='yes'&&!has(r.salePrice)) return false; if(a.sold==='no'&&has(r.salePrice)) return false;
+  if(a.arrived==='yes'&&!r.arrivalDate) return false; if(a.arrived==='no'&&r.arrivalDate) return false;
+  if(a.tr==='yes'&&!r.transportDone) return false; if(a.tr==='no'&&r.transportDone) return false;
+  if(a.ac==='yes'&&!r.acidDone) return false; if(a.ac==='no'&&r.acidDone) return false;
+  if(a.sh==='yes'&&!r.shipDone) return false; if(a.sh==='no'&&r.shipDone) return false;
+  if(a.photos==='yes'&&!r.photoCount) return false; if(a.photos==='no'&&r.photoCount) return false;
+  if(a.from||a.to){ const v=r[a.dfield]; if(!v) return false; if(a.from&&v<a.from) return false; if(a.to&&v>a.to) return false; }
+  return true;
+}
+function fillAdv(){
+  [['make','make'],['buyer','buyer'],['seller','sellerName'],['shipper','shipperName']].forEach(([id,f])=>{
+    const el=$('af_'+id), cur=el.value, seen={}, vals=[];
+    rows.forEach(r=>{ const s=String(r[f]||'').trim(), n=norm(s); if(s&&!seen[n]){ seen[n]=1; vals.push(s); } });
+    vals.sort((a,b)=>a.localeCompare(b,'ar'));
+    el.innerHTML='<option value="">الكل</option>'+vals.map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('');
+    el.value=vals.includes(cur)?cur:'';
+  });
+  const n=afActive(afGet()); $('advCnt').textContent=n?String(n):'';
+}
+$('advBtn').addEventListener('click',()=>{ const o=$('adv').hidden; $('adv').hidden=!o; $('advBtn').setAttribute('aria-expanded',String(o)); });
+AF_IDS.forEach(k=>{ $('af_'+k).addEventListener('change',()=>{ renderFilters(); renderTable(); }); });
+$('advClear').addEventListener('click',()=>{ AF_IDS.forEach(k=>{ if(k!=='dfield') $('af_'+k).value=''; }); renderFilters(); renderTable(); });
 function renderFilters(){
+  fillAdv();
   const base=rows.filter(vfOk);
   $('flts').innerHTML =
     VF.map(([k,l])=>'<button type="button" class="flt" data-vf="'+k+'" aria-pressed="'+(vf===k)+'">'+l+'<small>'+(k==='all'?rows.length:rows.filter(r=>vtypeOf(r)===k).length)+'</small></button>').join('')
@@ -806,7 +990,7 @@ $('flts').addEventListener('click',e=>{
 
 const mnum = p => r => has(r[p]) ? Number(r[p]) : null;
 const SORTERS = {
-  chassis:r=>norm(r.chassis)||null, vtype:r=>vtypeOf(r), make:r=>norm(r.make)||null, buyer:r=>norm(r.buyer)||null, seller:r=>norm(r.sellerName)||null, by:r=>nameOf(r.createdBy),
+  chassis:r=>norm(r.chassis)||null, vtype:r=>vtypeOf(r), make:r=>norm(r.make)||null, buyer:r=>norm(r.buyer)||null, seller:r=>norm(r.sellerName)||null, shipper:r=>norm(r.shipperName)||null, by:r=>nameOf(r.createdBy),
   buy:mnum('buyPrice'), extra:mnum('extraPrice'), ship:mnum('shipPrice'), transport:mnum('transportPrice'), sale:mnum('salePrice'),
   cost:r=>calcRow(r).cost, profit:r=>calcRow(r).profit, createdAt:r=>r.createdAt||0,
   purchaseDate:r=>r.purchaseDate||null, saleDate:r=>r.saleDate||null, transportDate:r=>r.transportDate||null, shipDate:r=>r.shipDate||null, arrivalDate:r=>r.arrivalDate||null
@@ -830,6 +1014,7 @@ function cardHtml(r,rank){
   const ps=c.profit==null?'—':(c.profit>0?'+':'')+fmtNum(c.profit)+' €';
   return '<div class="vcard" data-id="'+i+'"><div class="vtop"><div class="vch"><span class="vn">#'+rank+'</span>'+(r.chassis?'<bdi>'+esc(r.chassis)+'</bdi>':DASH)+'</div><span class="tag'+(vt==='reefer'?' rf':'')+'">'+VLABEL[vt]+'</span></div>'
     +'<div class="vsub">'+(r.make?esc(r.make):'بدون نوع')+' • المشتري: <b>'+(r.buyer?esc(r.buyer):'—')+'</b></div>'
+    +(r.shipperName?'<div class="vsub">الشاحن: <b>'+esc(r.shipperName)+'</b></div>':'')
     +(r.description?'<div class="vdesc">'+esc(r.description)+'</div>':'')
     +'<div class="vmoney"><div><small>سعر البيع</small><b>'+(has(r.salePrice)?fmtNum(r.salePrice)+' €':'—')+'</b></div>'
     +'<div><small>الربح</small><b class="'+(c.profit==null?'':(c.profit>=0?'pos':'neg'))+'">'+ps+'</b></div>'
@@ -845,7 +1030,8 @@ function actions(r){
 function renderTable(){
   const asc=rows.slice().sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)), rank={}; asc.forEach((r,i)=>{rank[r.id]=i+1});
   const q=norm($('q').value), f=FLTS.find(x=>x[0]===flt)[2];
-  let list=rows.filter(r=>vfOk(r) && f(r) && (!q || norm([r.chassis,r.make,VLABEL[vtypeOf(r)],r.description,r.color,r.buyer,r.buyerPhone,r.sellerName,r.sellerPhone,r.shipNo,r.notes,nameOf(r.createdBy)].join(' ')).includes(q)));
+  const AF=afGet();
+  let list=rows.filter(r=>vfOk(r) && f(r) && afOk(r,AF) && (!q || norm([r.chassis,r.make,VLABEL[vtypeOf(r)],r.description,r.color,r.buyer,r.buyerPhone,r.sellerName,r.sellerPhone,r.shipNo,r.shipperName,r.notes,nameOf(r.createdBy)].join(' ')).includes(q)));
   const get=SORTERS[sortKey]||SORTERS.createdAt, dir=sortDir==='asc'?1:-1;
   list.sort((a,b)=>{
     const x=get(a), y=get(b);
@@ -878,6 +1064,7 @@ function renderTable(){
       +'<td>'+chip(r,'transportDone')+'</td>'
       +'<td>'+chip(r,'acidDone')+'</td>'
       +'<td class="mono">'+(r.shipNo?'<bdi>'+esc(r.shipNo)+'</bdi>':DASH)+'</td>'
+      +'<td>'+(r.shipperName?esc(r.shipperName):DASH)+'</td>'
       +'<td>'+chip(r,'shipDone')+'</td>'
       +'<td class="wrapc">'+(r.notes?esc(r.notes):DASH)+'</td>'
       +'<td>'+userCell(r.createdBy)+'</td>'
@@ -896,7 +1083,7 @@ $('q').addEventListener('input',renderTable);
 document.querySelector('#tbl thead').addEventListener('click',e=>{
   const th=e.target.closest('th.srt'); if(!th) return;
   const k=th.getAttribute('data-sort');
-  if(sortKey===k) sortDir = sortDir==='asc'?'desc':'asc'; else { sortKey=k; sortDir = ['chassis','vtype','make','buyer','seller','by'].includes(k) ? 'asc' : 'desc'; }
+  if(sortKey===k) sortDir = sortDir==='asc'?'desc':'asc'; else { sortKey=k; sortDir = ['chassis','vtype','make','buyer','seller','shipper','by'].includes(k) ? 'asc' : 'desc'; }
   renderTable();
 });
 
@@ -928,7 +1115,7 @@ $('tbody').addEventListener('click',rowClick); $('cards').addEventListener('clic
 $('sortSel').addEventListener('change',function(){ const p=this.value.split(':'); sortKey=p[0]; sortDir=p[1]; renderTable(); });
 
 /* ---------- autocomplete ---------- */
-function attachAC(input, field, only){
+function attachAC(input, field, only, srcFn){
   const list=document.createElement('div'); list.className='sug'; list.hidden=true; list.setAttribute('role','listbox');
   const w=document.createElement('div'); w.className='acw';
   input.parentNode.insertBefore(w,input); w.appendChild(input); w.appendChild(list);
@@ -936,9 +1123,9 @@ function attachAC(input, field, only){
   function source(){
     const v=norm(input.value); if(!v) return [];
     const seen={}, st=[], inc=[];
-    rows.forEach(r=>{
-      if(only && !only(r)) return;
-      const s=String(r[field]||'').trim(), n=norm(s);
+    const all = srcFn ? srcFn() : rows.filter(r=>!only||only(r)).map(r=>r[field]);
+    all.forEach(s0=>{
+      const s=String(s0||'').trim(), n=norm(s);
       if(!s||seen[n]||n===v) return; seen[n]=1;
       if(n.indexOf(v)===0) st.push(s); else if(n.indexOf(v)>-1) inc.push(s);
     });
@@ -968,7 +1155,7 @@ function attachAC(input, field, only){
   list.addEventListener('pointerdown',e=>{ const b=e.target.closest('.si'); if(!b) return; e.preventDefault(); pick(+b.getAttribute('data-i')); });
 }
 attachAC($('fMakeIn'),'make',r=>vtypeOf(r)===form.vtype);
-attachAC($('fColorIn'),'color'); attachAC($('fDesc'),'description'); attachAC($('fBuyer'),'buyer'); attachAC($('fShipNo'),'shipNo'); attachAC($('fSeller'),'sellerName');
+attachAC($('fColorIn'),'color'); attachAC($('fDesc'),'description'); attachAC($('fBuyer'),'buyer'); attachAC($('fShipNo'),'shipNo'); attachAC($('fShipper'),'shipperName'); attachAC($('fSeller'),'sellerName');
 $('fBuyer').addEventListener('input',()=>{
   if($('fBuyerPhone').value.trim()) return;
   const n=norm($('fBuyer').value); if(!n) return;
@@ -1097,7 +1284,7 @@ $('lbox').addEventListener('click',()=>{ $('lbox').hidden=true; });
 const LABEL={vehicleType:'المركبة',chassis:'الشاسيه',make:'النوع',description:'الوصف',color:'اللون',buyer:'المشتري',buyerPhone:'رقم المشتري',sellerName:'الشركة البائعة',sellerPhone:'هاتف الشركة',
   buyPrice:'سعر الشراء',transportPrice:'مصاريف النقل',shipPrice:'سعر الشحن',extraPrice:'مصاريف إضافية',salePrice:'سعر البيع',
   purchaseDate:'تاريخ الشراء',saleDate:'تاريخ البيع',transportDate:'تاريخ النقل',shipDate:'تاريخ الشحن',arrivalDate:'تاريخ الوصول',
-  transportDone:'النقل',acidDone:'الأسيد',shipNo:'رقم الشحن',shipDone:'تم الشحن',notes:'الملاحظات'};
+  transportDone:'النقل',acidDone:'الأسيد',shipNo:'رقم الشحن',shipperName:'اسم الشاحن',shipDone:'تم الشحن',notes:'الملاحظات'};
 
 function openModal(id, edit){
   if(!me) return;
@@ -1112,7 +1299,7 @@ function openModal(id, edit){
   $('mTitle').textContent = r ? (readOnlyForm?'تفاصيل المركبة':'تعديل البيانات') : 'تسجيل جديد';
   $('fChassis').value=r?r.chassis||'':''; $('fMakeIn').value=r?r.make||'':''; $('fDesc').value=r?r.description||'':'';
   $('fColorIn').value=r?r.color||'':''; $('fBuyer').value=r?r.buyer||'':''; $('fBuyerPhone').value=r?r.buyerPhone||'':''; $('fSeller').value=r?r.sellerName||'':''; $('fSellerPhone').value=r?r.sellerPhone||'':'';
-  $('fShipNo').value=r?r.shipNo||'':''; $('fNotes').value=r?r.notes||'':'';
+  $('fShipNo').value=r?r.shipNo||'':''; $('fShipper').value=r?r.shipperName||'':''; $('fNotes').value=r?r.notes||'':'';
   buildVType(); buildMake(); buildColor(); setSw('fTransport',form.transport); setSw('fAcid',form.acid); setSw('fShipDone',form.ship);
   setFormEnabled(!readOnlyForm); updateCalc();
   const meta=$('mMeta');
@@ -1123,7 +1310,7 @@ function openModal(id, edit){
   photos=[]; renderPhotos(); if(r) loadPhotos(r.id);
   if(!r) setTimeout(()=>$('fChassis').focus(),30);
 }
-function closeModal(){ $('modal').hidden=true; editingId=null; photos=[]; if($('mathModal').hidden && $('logModal').hidden) document.documentElement.style.overflow=''; }
+function closeModal(){ $('modal').hidden=true; editingId=null; photos=[]; unlock(); }
 $('addBtn').addEventListener('click',()=>openModal(null,true));
 $('mClose').addEventListener('click',closeModal); $('cancelBtn').addEventListener('click',closeModal);
 $('modal').addEventListener('pointerdown',e=>{ if(e.target===$('modal')) closeModal(); });
@@ -1156,14 +1343,14 @@ $('tform').addEventListener('submit', async e=>{
   if(chassis && rows.some(r=>r.id!==editingId && norm(r.chassis)===norm(chassis))){ err.textContent='رقم الشاسيه ده متسجل قبل كده.'; err.hidden=false; $('fChassis').focus(); return; }
   const data={ vehicleType:form.vtype, chassis, make:$('fMakeIn').value.trim(), description:$('fDesc').value.trim(), color:$('fColorIn').value.trim(), buyer:$('fBuyer').value.trim(), buyerPhone:latin($('fBuyerPhone').value).trim(),
     sellerName:$('fSeller').value.trim(), sellerPhone:latin($('fSellerPhone').value).trim(),
-    transportDone:form.transport, acidDone:form.acid, shipNo:latin($('fShipNo').value).trim(), shipDone:form.ship, notes:$('fNotes').value.trim() };
+    transportDone:form.transport, acidDone:form.acid, shipNo:latin($('fShipNo').value).trim(), shipperName:$('fShipper').value.trim(), shipDone:form.ship, notes:$('fNotes').value.trim() };
   for(const [k,l] of MONEY){
     const m=readMoney(k);
     if(m.bad){ err.textContent=l+' لازم يكون رقم.'; err.hidden=false; $('f_'+k).focus(); return; }
     data[k+'Price']=m.v;
   }
   DATES.forEach(([k])=>{ data[k+'Date']=$('d_'+k).value||''; });
-  const empty = !data.chassis&&!data.make&&!data.description&&!data.color&&!data.buyer&&!data.buyerPhone&&!data.sellerName&&!data.sellerPhone&&!data.shipNo&&!data.notes&&!data.transportDone&&!data.acidDone&&!data.shipDone
+  const empty = !data.chassis&&!data.make&&!data.description&&!data.color&&!data.buyer&&!data.buyerPhone&&!data.sellerName&&!data.sellerPhone&&!data.shipNo&&!data.shipperName&&!data.notes&&!data.transportDone&&!data.acidDone&&!data.shipDone
     &&MONEY.every(([k])=>data[k+'Price']==null)&&DATES.every(([k])=>!data[k+'Date']);
   if(empty){ err.textContent='اكتب أي بيان قبل الحفظ.'; err.hidden=false; $('fChassis').focus(); return; }
   const now=Date.now(); $('saveBtn').disabled=true;
@@ -1193,7 +1380,7 @@ function renderLog(){
   $('logList').innerHTML = logs.length ? logs.map(l=>'<li><div class="t"><b>'+esc(nameOf(l.by))+'</b><span>'+esc(dstr(l.at))+' '+esc(new Date(l.at).toTimeString().slice(0,5))+'</span>'+(l.chassis?'<bdi class="mono">'+esc(l.chassis)+'</bdi>':'')+'</div>'+esc(l.text)+'</li>').join('') : '<li>لسه مفيش تغييرات متسجلة.</li>';
 }
 $('logBtn').addEventListener('click',()=>{ renderLog(); $('logModal').hidden=false; document.documentElement.style.overflow='hidden'; });
-const closeLog=()=>{ $('logModal').hidden=true; if($('modal').hidden && $('mathModal').hidden) document.documentElement.style.overflow=''; };
+const closeLog=()=>{ $('logModal').hidden=true; unlock(); };
 $('logClose').addEventListener('click',closeLog);
 $('logModal').addEventListener('pointerdown',e=>{ if(e.target===$('logModal')) closeLog(); });
 
@@ -1212,7 +1399,7 @@ function askMath(o,action){
   newQ(); $('mathErr').hidden=true; $('mathModal').hidden=false; document.documentElement.style.overflow='hidden';
   setTimeout(()=>$('mathA').focus(),30);
 }
-function closeMath(){ $('mathModal').hidden=true; mathAction=null; if($('modal').hidden && $('logModal').hidden) document.documentElement.style.overflow=''; }
+function closeMath(){ $('mathModal').hidden=true; mathAction=null; unlock(); }
 $('mathClose').addEventListener('click',closeMath); $('mathCancel').addEventListener('click',closeMath);
 $('mathModal').addEventListener('pointerdown',e=>{ if(e.target===$('mathModal')) closeMath(); });
 $('mathForm').addEventListener('submit', async e=>{
@@ -1261,10 +1448,179 @@ $('impFile').addEventListener('change',async function(){
   });
 });
 
+/* ---------- accounts: people balances, payments, general income/expenses ---------- */
+const ETYPES=[
+  {k:'they_owe',l:'عليه فلوس لي',s:1,p:true},
+  {k:'pay_in',l:'استلمت منه دفعة',s:-1,p:true},
+  {k:'i_owe',l:'ليه فلوس عندي',s:-1,p:true},
+  {k:'pay_out',l:'سدّدت له دفعة',s:1,p:true},
+  {k:'expense',l:'مصروف عام',p:false},
+  {k:'income',l:'إيراد عام',p:false}
+];
+const ET=Object.fromEntries(ETYPES.map(t=>[t.k,t]));
+let accTab='parties', accParty='', entEditing=null, entType='they_owe';
+const todayISO=()=>new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+const eur=n=>fmtNum(n)+' €';
+const entAmount=e=>Number(e.amount)||0;
+
+function partyStats(){
+  const m={};
+  ledger.forEach(e=>{
+    const t=ET[e.type]; if(!t||!t.p) return;
+    const key=norm(e.party); if(!key) return;
+    const o=m[key]||(m[key]={key,name:String(e.party).trim(),bal:0,n:0,last:''});
+    o.bal+=t.s*entAmount(e); o.n++; if((e.date||'')>o.last) o.last=e.date||'';
+  });
+  return Object.values(m).sort((a,b)=>Math.abs(b.bal)-Math.abs(a.bal)||a.name.localeCompare(b.name,'ar'));
+}
+function accTotals(){
+  const ps=partyStats(); let toMe=0, iOwe=0;
+  ps.forEach(p=>{ if(p.bal>0.004) toMe+=p.bal; else if(p.bal<-0.004) iOwe+=-p.bal; });
+  let exp=0, inc=0; ledger.forEach(e=>{ if(e.type==='expense') exp+=entAmount(e); else if(e.type==='income') inc+=entAmount(e); });
+  let vp=0; rows.forEach(r=>{ const p=calcRow(r).profit; if(p!=null) vp+=p; });
+  return {ps,toMe,iOwe,net:toMe-iOwe,exp,inc,vp,after:vp+inc-exp};
+}
+const balHtml=b=>Math.abs(b)<0.005 ? '<span class="bal z">مسدّد</span>' : (b>0 ? '<span class="bal up">عليه '+esc(eur(b))+'</span>' : '<span class="bal dn">له '+esc(eur(-b))+'</span>');
+
+function renderAcc(){
+  if($('accView').hidden) return;
+  const t=accTotals();
+  const tile=(l,v,c)=>'<div><small>'+l+'</small><b class="'+(c||'')+'">'+esc(v)+'</b></div>';
+  $('accSum').innerHTML=tile('فلوس ليا عند الناس',eur(t.toMe),'pos')+tile('فلوس عليا للناس',eur(t.iOwe),'neg')+tile('الصافي (ليا − عليا)',(t.net>0?'+':'')+eur(t.net),t.net>=0?'pos':'neg')
+    +tile('ربح المركبات',(t.vp>0?'+':'')+eur(t.vp),t.vp>=0?'pos':'neg')+tile('مصروفات عامة',eur(t.exp))+tile('إيرادات عامة',eur(t.inc))
+    +tile('صافي الربح بعد العام',(t.after>0?'+':'')+eur(t.after),t.after>=0?'pos':'neg');
+  $('accTabs').innerHTML=[['parties','الأشخاص'],['moves','الحركات'],['general','مصروفات وإيرادات عامة']].map(([k,l])=>'<button type="button" class="opt" role="tab" data-t="'+k+'" aria-checked="'+(accTab===k)+'">'+l+'</button>').join('');
+  const q=norm($('accQ').value), f=$('accFilter');
+  f.hidden=!accParty; if(accParty) f.innerHTML='حركات: <b>'+esc(accParty)+'</b> <button type="button" class="mini" id="accClear">إلغاء الفلتر ✕</button>';
+  let html='';
+  if(accTab==='parties'){
+    const list=t.ps.filter(p=>!q||norm(p.name).includes(q));
+    html=list.length ? list.map(p=>'<div class="acard" data-party="'+esc(p.name)+'"><div class="at"><b>'+esc(p.name)+'</b>'+balHtml(p.bal)+'</div><div class="as">'+p.n+' حركة'+(p.last?' • آخر حركة '+esc(p.last):'')+'</div>'
+      +'<div class="acts2"><button type="button" class="mini" data-pay="'+esc(p.name)+'" data-bal="'+p.bal+'">+ دفعة</button><button type="button" class="mini" data-hist="'+esc(p.name)+'">الحركات</button></div></div>').join('')
+      : '<div class="empty" style="display:block"><strong>لسه مفيش أشخاص</strong>اضغط «+ حركة جديدة» وسجّل أول حركة.</div>';
+  }else{
+    const gen=accTab==='general';
+    let list=ledger.filter(e=>{ const t=ET[e.type]; if(!t) return false; if(gen!==!t.p) return false;
+      if(accParty && norm(e.party)!==norm(accParty)) return false;
+      return !q || norm([e.party,e.category,e.note,e.vehicle,ET[e.type].l].join(' ')).includes(q); });
+    list.sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));
+    let sum=0; list.forEach(e=>{ sum+=entAmount(e); });
+    html=list.length ? list.map(e=>{ const t=ET[e.type];
+      const cls = e.type==='income'||e.type==='pay_in'||e.type==='they_owe' ? 'up' : 'dn';
+      return '<div class="mv"><div class="mvt"><b>'+esc(t.l)+' • '+esc(t.p?e.party:(e.category||'عام'))+'</b><span class="bal '+cls+'">'+esc(eur(entAmount(e)))+'</span></div>'
+        +'<div class="mvs">'+esc(e.date||'')+(e.vehicle?' • مركبة <bdi class="mono">'+esc(e.vehicle)+'</bdi>':'')+' • سجّلها '+esc(nameOf(e.createdBy))+'</div>'
+        +(e.note?'<div class="mvn">'+esc(e.note)+'</div>':'')
+        +'<div class="mvb"><button type="button" class="mini" data-eedit="'+esc(e.id)+'">تعديل</button></div></div>'; }).join('')
+      + (gen?'':'') : '<div class="empty" style="display:block"><strong>مفيش حركات</strong></div>';
+  }
+  $('accBody').innerHTML=html;
+}
+let view='veh';
+function setView(v){
+  view=v; $('vehView').hidden=v!=='veh'; $('accView').hidden=v!=='acc'; $('fab').hidden=!me||v!=='veh';
+  document.querySelectorAll('#tabbar .tb[data-view]').forEach(b=>{ if(b.getAttribute('data-view')===v) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  if(v==='acc') renderAcc(); window.scrollTo(0,0);
+}
+$('tabbar').addEventListener('click',e=>{
+  const b=e.target.closest('.tb'); if(!b) return;
+  const a=b.getAttribute('data-act');
+  if(a==='log') $('logBtn').click();
+  else if(a==='export'){ if(view==='acc') askExportAcc(); else $('fab').click(); }
+  else setView(b.getAttribute('data-view'));
+});
+$('accQ').addEventListener('input',renderAcc);
+$('accTabs').addEventListener('click',e=>{ const b=e.target.closest('[data-t]'); if(!b) return; accTab=b.getAttribute('data-t'); if(accTab==='parties') accParty=''; renderAcc(); });
+$('accFilter').addEventListener('click',e=>{ if(e.target.closest('#accClear')){ accParty=''; renderAcc(); } });
+$('accBody').addEventListener('click',e=>{
+  const pay=e.target.closest('[data-pay]');
+  if(pay){ e.stopPropagation(); const b=Number(pay.getAttribute('data-bal')); openEnt(null,{type:b>0?'pay_in':'pay_out',party:pay.getAttribute('data-pay')}); return; }
+  const hist=e.target.closest('[data-hist]')||e.target.closest('.acard');
+  if(hist){ accParty=hist.getAttribute('data-hist')||hist.getAttribute('data-party'); accTab='moves'; renderAcc(); return; }
+  const ed=e.target.closest('[data-eedit]');
+  if(ed){ const id=ed.getAttribute('data-eedit'); askMath({title:'تأكيد التعديل',note:'حل المسألة عشان تعدّل الحركة.',btn:'تعديل'},()=>openEnt(id)); }
+});
+$('accAdd').addEventListener('click',()=>openEnt(null, accTab==='general'?{type:'expense'}:(accParty?{party:accParty}:{})));
+
+/* entry form */
+const partyNames=()=>{ const s=[]; ledger.forEach(e=>{ if(ET[e.type]&&ET[e.type].p) s.push(e.party); }); rows.forEach(r=>{ s.push(r.buyer); s.push(r.sellerName); }); return s; };
+attachAC($('eParty'),'',null,partyNames); attachAC($('eVeh'),'chassis'); attachAC($('eCat'),'',null,()=>ledger.map(e=>e.category));
+function buildEType(){ $('eType').innerHTML=ETYPES.map(t=>'<button type="button" class="opt" role="radio" data-v="'+t.k+'" aria-checked="'+(entType===t.k)+'">'+t.l+'</button>').join(''); const p=ET[entType].p; $('ePartyBox').hidden=!p; $('eCatBox').hidden=p; }
+$('eType').addEventListener('click',e=>{ const b=e.target.closest('.opt'); if(!b) return; entType=b.getAttribute('data-v'); buildEType(); });
+function openEnt(id,pre){
+  entEditing=id||null; pre=pre||{};
+  const e=id?ledger.find(x=>x.id===id):null; if(id&&!e) return;
+  entType=e?e.type:(pre.type||'they_owe'); if(!ET[entType]) entType='they_owe';
+  $('entTitle').textContent=e?'تعديل حركة':'حركة جديدة';
+  $('eParty').value=e?(e.party||''):(pre.party||''); $('eCat').value=e?(e.category||''):''; $('eAmount').value=e?String(e.amount):'';
+  $('eDate').value=e?(e.date||todayISO()):todayISO(); $('eVeh').value=e?(e.vehicle||''):''; $('eNote').value=e?(e.note||''):'';
+  buildEType(); $('eErr').hidden=true; $('eSave').disabled=false; $('eDel').hidden=!e;
+  $('entModal').hidden=false; document.documentElement.style.overflow='hidden';
+  setTimeout(()=>{ (ET[entType].p?($('eParty').value?$('eAmount'):$('eParty')):$('eAmount')).focus(); },120);
+}
+function closeEnt(){ $('entModal').hidden=true; entEditing=null; unlock(); }
+$('entClose').addEventListener('click',closeEnt); $('eCancel').addEventListener('click',closeEnt);
+$('entModal').addEventListener('pointerdown',e=>{ if(e.target===$('entModal')) closeEnt(); });
+$('eDel').addEventListener('click',()=>{
+  const id=entEditing, e=ledger.find(x=>x.id===id); if(!e) return;
+  askMath({title:'تأكيد المسح',note:'هتتمسح الحركة دي نهائياً.',btn:'مسح',danger:true},async()=>{
+    try{ await deleteDoc(doc(db,'ledger',id)); writeLog({id:'',chassis:e.vehicle||''},'حسابات: مسح '+ET[e.type].l+' '+eur(entAmount(e))+' • '+(e.party||e.category||'')); toast('اتمسحت الحركة'); closeEnt(); }
+    catch(ex){ writeFailed(ex); }
+  });
+});
+$('entForm').addEventListener('submit',async ev=>{
+  ev.preventDefault(); const err=$('eErr'); err.hidden=true;
+  const t=ET[entType], raw=latin($('eAmount').value).replace(/[,،\s]/g,''), amount=Number(raw);
+  const fail=(m,el)=>{ err.textContent=m; err.hidden=false; el.focus(); };
+  const party=$('eParty').value.trim();
+  if(t.p && !party) return fail('اكتب اسم الشخص.',$('eParty'));
+  if(raw===''||!isFinite(amount)||amount<=0) return fail('اكتب مبلغ صحيح أكبر من صفر.',$('eAmount'));
+  if(!$('eDate').value) return fail('اختار التاريخ.',$('eDate'));
+  const data={type:entType, amount, date:$('eDate').value, party:t.p?party:'', category:t.p?'':($('eCat').value.trim()||'عام'), vehicle:latin($('eVeh').value).trim().toUpperCase().replace(/\s+/g,''), note:$('eNote').value.trim()};
+  const now=Date.now(); $('eSave').disabled=true;
+  try{
+    if(entEditing){
+      await updateDoc(doc(db,'ledger',entEditing),Object.assign(data,{updatedAt:now,updatedBy:me}));
+      writeLog({id:'',chassis:data.vehicle},'حسابات: عدّل '+t.l+' '+eur(amount)+' • '+(data.party||data.category)); toast('اتحفظ التعديل');
+    }else{
+      await addDoc(collection(db,'ledger'),Object.assign(data,{createdBy:me,createdAt:now,updatedAt:now,updatedBy:me}));
+      writeLog({id:'',chassis:data.vehicle},'حسابات: '+t.l+' '+eur(amount)+' • '+(data.party||data.category)); toast('اتسجّلت الحركة');
+    }
+    closeEnt();
+  }catch(ex){ $('eSave').disabled=false; err.textContent=(ex&&ex.code==='permission-denied')?'مش مسموح لك بالحفظ. اتأكد إن ملف القواعد اتنشر.':'ما اتحفظش. اتأكد من النت وجرّب تاني.'; err.hidden=false; }
+});
+
+/* export accounts to .xlsx */
+const askExportAcc=()=>askMath({title:'تأكيد قبل التصدير',note:'هيتصدّر ملخص الحسابات وأرصدة الأشخاص وكل الحركات.',btn:'تصدير'},exportAcc);
+async function exportAcc(){
+  if(typeof ExcelJS==='undefined'){ toast('مكتبة الإكسل ما اتحمّلتش. حدّث الصفحة وجرّب تاني.'); return; }
+  try{
+    const t=accTotals(), wb=new ExcelJS.Workbook(); wb.views=[{rightToLeft:true}];
+    const FMT='#,##0.##" €"';
+    const mk=(name,cols,data)=>{
+      const ws=wb.addWorksheet(name,{views:[{rightToLeft:true,state:'frozen',ySplit:1}]});
+      ws.columns=cols.map(c=>({header:c[0],width:c[1]}));
+      const hr=ws.getRow(1); hr.font={bold:true,color:{argb:'FFFFFFFF'}}; hr.alignment={horizontal:'center',vertical:'middle'};
+      hr.eachCell(c=>{ c.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1F4F60'}}; });
+      data.forEach(r=>ws.addRow(r)); ws.eachRow((row,i)=>{ if(i>1) row.alignment={vertical:'middle',horizontal:'center',wrapText:true}; });
+      return ws;
+    };
+    const s=mk('الملخص',[['البند',34],['المبلغ (€)',18]],[['فلوس ليا عند الناس',t.toMe],['فلوس عليا للناس',t.iOwe],['الصافي (ليا − عليا)',t.net],['ربح المركبات',t.vp],['مصروفات عامة',t.exp],['إيرادات عامة',t.inc],['صافي الربح بعد العام',t.after]]);
+    s.getColumn(2).numFmt=FMT;
+    const p=mk('الأشخاص',[['الاسم',28],['الرصيد (€)',16],['الحالة',18],['عدد الحركات',12],['آخر حركة',14]],t.ps.map(x=>[x.name,x.bal,Math.abs(x.bal)<0.005?'مسدّد':(x.bal>0?'عليه لي':'له عندي'),x.n,x.last]));
+    p.getColumn(2).numFmt=FMT;
+    const mv=ledger.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.createdAt||0)-(a.createdAt||0));
+    const m=mk('الحركات',[['التاريخ',14],['النوع',20],['الشخص / البند',26],['المبلغ (€)',16],['المركبة',22],['ملاحظات',34],['سجّلها',12]],mv.filter(e=>ET[e.type]).map(e=>[e.date||'',ET[e.type].l,ET[e.type].p?e.party:(e.category||'عام'),entAmount(e),e.vehicle||'',e.note||'',nameOf(e.createdBy)]));
+    m.getColumn(4).numFmt=FMT;
+    const buf=await wb.xlsx.writeBuffer();
+    saveBlob(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),'الحسابات-'+dstr(Date.now())+'.xlsx'); toast('اتحفظ ملف الحسابات');
+  }catch(ex){ console.error(ex); toast('ما قدرناش نطلّع الملف.'); }
+}
+
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape') return;
   if(!$('lbox').hidden) $('lbox').hidden=true;
   else if(!$('mathModal').hidden) closeMath();
+  else if(!$('entModal').hidden) closeEnt();
   else if(!$('logModal').hidden) closeLog();
   else if(!$('modal').hidden) closeModal();
 });
