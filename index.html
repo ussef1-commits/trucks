@@ -941,8 +941,8 @@ function startData(){
     logs=s.docs.map(d=>d.data()); renderLog();
   }, ()=>{}));
 }
-async function writeLog(truck, text){
-  try{ await addDoc(collection(db,'log'),{at:Date.now(), by:me, truckId:truck.id||'', chassis:truck.chassis||'', text}); }catch(e){ console.warn('log failed',e); }
+async function writeLog(truck, text, acc){
+  try{ await addDoc(collection(db,'log'),Object.assign({at:Date.now(), by:me, truckId:truck.id||'', chassis:truck.chassis||'', text}, acc?{acc:true}:{})); }catch(e){ console.warn('log failed',e); }
 }
 function writeFailed(ex){
   const c=ex&&ex.code;
@@ -1402,7 +1402,8 @@ $('tform').addEventListener('submit', async e=>{
 
 /* ---------- change log ---------- */
 function renderLog(){
-  $('logList').innerHTML = logs.length ? logs.map(l=>'<li><div class="t"><b>'+esc(nameOf(l.by))+'</b><span>'+esc(dstr(l.at))+' '+esc(new Date(l.at).toTimeString().slice(0,5))+'</span>'+(l.chassis?'<bdi class="mono">'+esc(l.chassis)+'</bdi>':'')+'</div>'+esc(l.text)+'</li>').join('') : '<li>لسه مفيش تغييرات متسجلة.</li>';
+  const vis=logs.filter(l=>accUnlocked || !(l.acc || /^حسابات:/.test(l.text||'')));
+  $('logList').innerHTML = vis.length ? vis.map(l=>'<li><div class="t"><b>'+esc(nameOf(l.by))+'</b><span>'+esc(dstr(l.at))+' '+esc(new Date(l.at).toTimeString().slice(0,5))+'</span>'+(l.chassis?'<bdi class="mono">'+esc(l.chassis)+'</bdi>':'')+'</div>'+esc(l.text)+'</li>').join('') : '<li>لسه مفيش تغييرات متسجلة.</li>';
 }
 $('logBtn').addEventListener('click',()=>{ renderLog(); $('logModal').hidden=false; document.documentElement.style.overflow='hidden'; });
 const closeLog=()=>{ $('logModal').hidden=true; unlock(); };
@@ -1554,9 +1555,9 @@ async function hashPw(pw,saltB64){
 async function loadLock(){
   try{ const s=await getDoc(doc(db,'settings','accountsLock')); lockDoc=s.exists()?s.data():null; return true; }catch(e){ return false; }
 }
-function showAcc(){ $('accLock').hidden=true; $('accContent').hidden=false; renderAcc(); }
+function showAcc(){ $('accLock').hidden=true; $('accContent').hidden=false; renderAcc(); renderLog(); }
 function lockAcc(silent){
-  accUnlocked=false; stopLedger(); clearTimeout(lockTimer); $('accContent').hidden=true;
+  accUnlocked=false; stopLedger(); clearTimeout(lockTimer); $('accContent').hidden=true; renderLog();
   if(view==='acc') showLockPanel(); else $('accLock').hidden=true;
   if(!silent) toast('اتقفل قسم الحسابات');
 }
@@ -1661,7 +1662,7 @@ $('entModal').addEventListener('pointerdown',e=>{ if(e.target===$('entModal')) c
 $('eDel').addEventListener('click',()=>{
   const id=entEditing, e=ledger.find(x=>x.id===id); if(!e) return;
   askMath({title:'تأكيد المسح',note:'هتتمسح الحركة دي نهائياً.',btn:'مسح',danger:true},async()=>{
-    try{ await deleteDoc(doc(db,'ledger',id)); writeLog({id:'',chassis:e.vehicle||''},'حسابات: مسح حركة'); toast('اتمسحت الحركة'); closeEnt(); }
+    try{ await deleteDoc(doc(db,'ledger',id)); writeLog({id:'',chassis:e.vehicle||''},'حسابات: مسح '+ET[e.type].l+' '+eur(entAmount(e))+' • '+(e.party||e.category||''),true); toast('اتمسحت الحركة'); closeEnt(); }
     catch(ex){ writeFailed(ex); }
   });
 });
@@ -1678,10 +1679,10 @@ $('entForm').addEventListener('submit',async ev=>{
   try{
     if(entEditing){
       await updateDoc(doc(db,'ledger',entEditing),Object.assign(data,{updatedAt:now,updatedBy:me}));
-      writeLog({id:'',chassis:data.vehicle},'حسابات: عدّل حركة'); toast('اتحفظ التعديل');
+      writeLog({id:'',chassis:data.vehicle},'حسابات: عدّل '+t.l+' '+eur(amount)+' • '+(data.party||data.category),true); toast('اتحفظ التعديل');
     }else{
       await addDoc(collection(db,'ledger'),Object.assign(data,{createdBy:me,createdAt:now,updatedAt:now,updatedBy:me}));
-      writeLog({id:'',chassis:data.vehicle},'حسابات: أضاف حركة'); toast('اتسجّلت الحركة');
+      writeLog({id:'',chassis:data.vehicle},'حسابات: '+t.l+' '+eur(amount)+' • '+(data.party||data.category),true); toast('اتسجّلت الحركة');
     }
     closeEnt();
   }catch(ex){ $('eSave').disabled=false; err.textContent=(ex&&ex.code==='permission-denied')?'مش مسموح لك بالحفظ. اتأكد إن ملف القواعد اتنشر.':'ما اتحفظش. اتأكد من النت وجرّب تاني.'; err.hidden=false; }
