@@ -334,6 +334,14 @@ fieldset .fs input[type=date]{width:100%}
 .advgrid select,.advgrid input{font:inherit;font-size:14px;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-width:0;width:100%}
 #advBtn small{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 7px;font-size:12px}
 #advBtn small:empty{display:none}
+.acclock{max-width:420px;margin:36px auto;padding:26px 22px;text-align:center}
+.acclock svg{color:var(--accent)}
+.acclock h2{margin:10px 0 6px;font:700 20px var(--font-display)}
+.acclock p{color:var(--muted);font-size:14px;margin:0 0 14px;line-height:1.7}
+.acclock input{width:100%;font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin-bottom:10px;text-align:center}
+.acclock .lkerr{color:var(--neg);font-size:13.5px;margin:0 0 10px}
+.lkrow{display:flex;gap:8px;justify-content:center}
+.lkbtns{display:flex;gap:8px;margin:-4px 0 12px}
 </style>
 </head>
 <body>
@@ -487,7 +495,21 @@ fieldset .fs input[type=date]{width:100%}
       </div>
       </div>
       <div id="accView" hidden>
+      <div id="accLock" class="acclock card" hidden>
+        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <h2 id="lkTitle">قسم الحسابات مقفول</h2>
+        <p id="lkNote"></p>
+        <form id="lkForm" autocomplete="off">
+          <input type="password" id="lkOld" placeholder="الباسورد الحالي" autocomplete="off" hidden>
+          <input type="password" id="lkPw" placeholder="الباسورد" autocomplete="off">
+          <input type="password" id="lkPw2" placeholder="أعد كتابة الباسورد" autocomplete="off" hidden>
+          <p class="lkerr" id="lkErr" hidden></p>
+          <div class="lkrow"><button class="btn primary" id="lkGo" type="submit">فتح</button><button class="btn" id="lkCancel" type="button" hidden>إلغاء</button></div>
+        </form>
+      </div>
+      <div id="accContent" hidden>
         <h2 class="accttl">الحسابات</h2>
+        <div class="lkbtns"><button type="button" class="mini" id="lkLock">قفل القسم</button><button type="button" class="mini" id="lkChange">تغيير الباسورد</button></div>
         <div class="accsum" id="accSum"></div>
       <div class="accbar">
         <div class="seg" id="accTabs" role="tablist"></div>
@@ -497,6 +519,7 @@ fieldset .fs input[type=date]{width:100%}
       <input id="accQ" placeholder="ابحث باسم الشخص أو الملاحظة أو الشاسيه">
       <div id="accFilter" class="accfilter" hidden></div>
       <div id="accBody"></div>
+      </div>
       </div>
     </div>
   </main>
@@ -715,7 +738,7 @@ fieldset .fs input[type=date]{width:100%}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, addDoc, updateDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, doc, addDoc, updateDoc, deleteDoc, getDoc, setDoc, getDocs, onSnapshot, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { firebaseConfig, EMAIL_DOMAIN, USERS } from "./config.js";
 
 /* ===== shared by the page and the daily report: money maths + Excel layout (EUR only) ===== */
@@ -897,12 +920,15 @@ function enter(k){
   startData(); renderAll();
 }
 function leave(){
-  me=null; unsubs.forEach(u=>u()); unsubs=[]; rows=[]; logs=[]; ledger=[]; loaded=false; dbError='';
+  me=null; unsubs.forEach(u=>u()); unsubs=[]; rows=[]; logs=[]; stopLedger(); accUnlocked=false; clearTimeout(lockTimer); loaded=false; dbError='';
   closeModal(); $('entModal').hidden=true; closeMath(); $('logModal').hidden=true; setView('veh'); $('tabbar').hidden=true;
   $('main').hidden=true; $('fab').hidden=true; $('logBtn').hidden=true; $('who').hidden=true; $('login').hidden=false;
 }
 
 /* ---------- data ---------- */
+let ledgerUnsub=null;
+function startLedger(){ if(ledgerUnsub||!db) return; ledgerUnsub=onSnapshot(collection(db,'ledger'), s=>{ ledger=s.docs.map(d=>Object.assign({},d.data(),{id:d.id})); if(accUnlocked) renderAcc(); }, ()=>{}); }
+function stopLedger(){ if(ledgerUnsub){ ledgerUnsub(); ledgerUnsub=null; } ledger=[]; }
 function startData(){
   loaded=false; slow=false; dbError='';
   const timer=setTimeout(()=>{ if(!loaded){ slow=true; renderBanner(); } },10000);
@@ -911,7 +937,6 @@ function startData(){
     rows=snap.docs.map(d=>Object.assign({},d.data(),{id:d.id}));
     loaded=true; slow=false; dbError=''; clearTimeout(timer); renderAll();
   }, fail));
-  unsubs.push(onSnapshot(collection(db,'ledger'), s=>{ ledger=s.docs.map(d=>Object.assign({},d.data(),{id:d.id})); renderAcc(); }, ()=>{}));
   unsubs.push(onSnapshot(query(collection(db,'log'), orderBy('at','desc'), limit(100)), s=>{
     logs=s.docs.map(d=>d.data()); renderLog();
   }, ()=>{}));
@@ -1515,11 +1540,84 @@ function renderAcc(){
   }
   $('accBody').innerHTML=html;
 }
+/* ---------- accounts password gate ---------- */
+let accUnlocked=false, lockDoc=null, lkMode='enter', lockTimer=null, lkFails=0, lkBlockUntil=0;
+const te=new TextEncoder();
+const b64=u=>btoa(String.fromCharCode.apply(null,Array.from(new Uint8Array(u))));
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function hashPw(pw,saltB64){
+  const salt=saltB64?unb64(saltB64):crypto.getRandomValues(new Uint8Array(16));
+  const key=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt,iterations:150000},key,256);
+  return {salt:b64(salt),hash:b64(bits)};
+}
+async function loadLock(){
+  try{ const s=await getDoc(doc(db,'settings','accountsLock')); lockDoc=s.exists()?s.data():null; return true; }catch(e){ return false; }
+}
+function showAcc(){ $('accLock').hidden=true; $('accContent').hidden=false; renderAcc(); }
+function lockAcc(silent){
+  accUnlocked=false; stopLedger(); clearTimeout(lockTimer); $('accContent').hidden=true;
+  if(view==='acc') showLockPanel(); else $('accLock').hidden=true;
+  if(!silent) toast('اتقفل قسم الحسابات');
+}
+function lkSetMode(mode){
+  lkMode=mode; const M={
+    setup:['اختار باسورد لقسم الحسابات','هيتطلب كل ما حد يفتح القسم ده. احفظه كويس.','حفظ وفتح',false,true],
+    enter:['قسم الحسابات مقفول','اكتب الباسورد عشان تفتحه.','فتح',false,false],
+    change:['تغيير الباسورد','اكتب الحالي وبعدين الجديد.','تغيير',true,true]}[mode];
+  $('lkTitle').textContent=M[0]; $('lkNote').textContent=M[1]; $('lkGo').textContent=M[2];
+  $('lkOld').hidden=!M[3]; $('lkPw2').hidden=!M[4]; $('lkCancel').hidden=mode!=='change';
+  $('lkPw').placeholder = mode==='change'?'الباسورد الجديد':'الباسورد';
+  ['lkOld','lkPw','lkPw2'].forEach(i=>{ $(i).value=''; }); $('lkErr').hidden=true;
+  setTimeout(()=>{ (M[3]?$('lkOld'):$('lkPw')).focus(); },60);
+}
+async function showLockPanel(){
+  $('accContent').hidden=true; $('accLock').hidden=false; $('lkForm').hidden=true; $('lkTitle').textContent='جاري التحميل…'; $('lkNote').textContent='';
+  const ok=await loadLock();
+  if(view!=='acc') return;
+  if(!ok){ $('lkTitle').textContent='مش قادر أحمّل الإعدادات'; $('lkNote').textContent='اتأكد من النت وارجع للقسم تاني.'; return; }
+  $('lkForm').hidden=false; lkSetMode(lockDoc?'enter':'setup');
+}
+function lkError(t){ $('lkErr').textContent=t; $('lkErr').hidden=false; }
+function unlockAcc(){ accUnlocked=true; lkFails=0; startLedger(); showAcc(); }
+$('lkForm').addEventListener('submit', async e=>{
+  e.preventDefault(); $('lkErr').hidden=true;
+  const pw=$('lkPw').value, pw2=$('lkPw2').value, old=$('lkOld').value;
+  const wait=Math.ceil((lkBlockUntil-Date.now())/1000);
+  if(wait>0){ lkError('محاولات غلط كتير. استنى '+wait+' ثانية.'); return; }
+  $('lkGo').disabled=true;
+  try{
+    if(lkMode==='setup'){
+      if(pw.length<4){ lkError('الباسورد لازم يكون 4 حروف أو أرقام على الأقل.'); return; }
+      if(pw!==pw2){ lkError('الباسوردين مش متطابقين.'); return; }
+      const h=await hashPw(pw); const d=Object.assign(h,{by:me,at:Date.now()});
+      await setDoc(doc(db,'settings','accountsLock'),d); lockDoc=d; unlockAcc(); toast('اتحفظ الباسورد');
+    }else{
+      const cur=lkMode==='change'?old:pw;
+      const h=await hashPw(cur,lockDoc.salt);
+      if(h.hash!==lockDoc.hash){
+        lkFails++; if(lkFails>=5){ lkBlockUntil=Date.now()+30000; lkFails=0; }
+        lkError(lkMode==='change'?'الباسورد الحالي غلط.':'الباسورد غلط.'); $(lkMode==='change'?'lkOld':'lkPw').value=''; return;
+      }
+      if(lkMode==='enter'){ unlockAcc(); return; }
+      if(pw.length<4){ lkError('الباسورد الجديد لازم يكون 4 على الأقل.'); return; }
+      if(pw!==pw2){ lkError('الباسوردين الجداد مش متطابقين.'); return; }
+      const n=await hashPw(pw); const d=Object.assign(n,{by:me,at:Date.now()});
+      await setDoc(doc(db,'settings','accountsLock'),d); lockDoc=d; toast('اتغيّر الباسورد'); showAcc();
+    }
+  }catch(ex){ lkError('حصلت مشكلة. اتأكد من النت وجرّب تاني.'); }
+  finally{ $('lkGo').disabled=false; }
+});
+$('lkCancel').addEventListener('click',showAcc);
+$('lkLock').addEventListener('click',()=>lockAcc(false));
+$('lkChange').addEventListener('click',()=>{ $('accContent').hidden=true; $('accLock').hidden=false; $('lkForm').hidden=false; lkSetMode('change'); });
 let view='veh';
 function setView(v){
   view=v; $('vehView').hidden=v!=='veh'; $('accView').hidden=v!=='acc'; $('fab').hidden=!me||v!=='veh';
   document.querySelectorAll('#tabbar .tb[data-view]').forEach(b=>{ if(b.getAttribute('data-view')===v) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
-  if(v==='acc') renderAcc(); window.scrollTo(0,0);
+  if(v==='acc'){ clearTimeout(lockTimer); if(accUnlocked) showAcc(); else showLockPanel(); }
+  else if(accUnlocked){ clearTimeout(lockTimer); lockTimer=setTimeout(()=>lockAcc(true),180000); }
+  window.scrollTo(0,0);
 }
 $('tabbar').addEventListener('click',e=>{
   const b=e.target.closest('.tb'); if(!b) return;
@@ -1563,7 +1661,7 @@ $('entModal').addEventListener('pointerdown',e=>{ if(e.target===$('entModal')) c
 $('eDel').addEventListener('click',()=>{
   const id=entEditing, e=ledger.find(x=>x.id===id); if(!e) return;
   askMath({title:'تأكيد المسح',note:'هتتمسح الحركة دي نهائياً.',btn:'مسح',danger:true},async()=>{
-    try{ await deleteDoc(doc(db,'ledger',id)); writeLog({id:'',chassis:e.vehicle||''},'حسابات: مسح '+ET[e.type].l+' '+eur(entAmount(e))+' • '+(e.party||e.category||'')); toast('اتمسحت الحركة'); closeEnt(); }
+    try{ await deleteDoc(doc(db,'ledger',id)); writeLog({id:'',chassis:e.vehicle||''},'حسابات: مسح حركة'); toast('اتمسحت الحركة'); closeEnt(); }
     catch(ex){ writeFailed(ex); }
   });
 });
@@ -1580,10 +1678,10 @@ $('entForm').addEventListener('submit',async ev=>{
   try{
     if(entEditing){
       await updateDoc(doc(db,'ledger',entEditing),Object.assign(data,{updatedAt:now,updatedBy:me}));
-      writeLog({id:'',chassis:data.vehicle},'حسابات: عدّل '+t.l+' '+eur(amount)+' • '+(data.party||data.category)); toast('اتحفظ التعديل');
+      writeLog({id:'',chassis:data.vehicle},'حسابات: عدّل حركة'); toast('اتحفظ التعديل');
     }else{
       await addDoc(collection(db,'ledger'),Object.assign(data,{createdBy:me,createdAt:now,updatedAt:now,updatedBy:me}));
-      writeLog({id:'',chassis:data.vehicle},'حسابات: '+t.l+' '+eur(amount)+' • '+(data.party||data.category)); toast('اتسجّلت الحركة');
+      writeLog({id:'',chassis:data.vehicle},'حسابات: أضاف حركة'); toast('اتسجّلت الحركة');
     }
     closeEnt();
   }catch(ex){ $('eSave').disabled=false; err.textContent=(ex&&ex.code==='permission-denied')?'مش مسموح لك بالحفظ. اتأكد إن ملف القواعد اتنشر.':'ما اتحفظش. اتأكد من النت وجرّب تاني.'; err.hidden=false; }
